@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/Caknoooo/golang-clean_template/config"
@@ -23,10 +24,12 @@ func main() {
 		userController controller.UserController = controller.NewUserController(userService, jwtService)
 	)
 
-	server := gin.Default()
+	if err := config.Seeder(db); err != nil {
+		log.Fatalf("error seeding database: %v", err)
+	}
 
+	server := gin.Default()
 	routes.Router(server, userController, jwtService)
-	
 	server.Use(middleware.CORSMiddleware())
 
 	port := os.Getenv("PORT")
