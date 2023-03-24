@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RouterUser(route *gin.Engine, UserController controller.UserController, jwtService services.JWTService) {
+func Router(route *gin.Engine, UserController controller.UserController, EventController controller.EventController, jwtService services.JWTService) {
 	routes := route.Group("/api/user")
 	{
 		routes.POST("", UserController.RegisterUser)
@@ -25,5 +25,16 @@ func RouterTransaksi(route *gin.Engine, TransaksiController controller.Transaksi
 	routes := route.Group("/api/transaksi")
 	{
 		routes.GET("/event", TransaksiController.GetAllTransaksi)
+	}
+
+	eventRoutes := route.Group("/api/event")
+	{
+		eventRoutes.POST("", middleware.Authenticate(jwtService), EventController.CreateEvent)
+		eventRoutes.GET("", EventController.GetAllEvent) // Permission -> Admin
+		eventRoutes.GET("/:user_id", middleware.Authenticate(jwtService), EventController.GetAllEventByUserID) // Hanya user yang membuatnya yang bisa cek seluruh event yang dia buat
+		eventRoutes.GET("/get/:id", EventController.GetEventByID)
+		eventRoutes.PUT("/:id", middleware.Authenticate(jwtService), EventController.UpdateEvent)
+		eventRoutes.DELETE("/:id", middleware.Authenticate(jwtService), EventController.DeleteEvent)
+		eventRoutes.POST("/like/:user_id/:event_id", middleware.Authenticate(jwtService), EventController.LikeEventByEventID)
 	}
 }

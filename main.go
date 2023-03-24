@@ -17,14 +17,17 @@ import (
 
 func main() {
 	var (
-		db                  *gorm.DB                       = config.SetUpDatabaseConnection()
-		jwtService          services.JWTService            = services.NewJWTService()
+		db                   *gorm.DB                        = config.SetUpDatabaseConnection()
+		jwtService           services.JWTService             = services.NewJWTService()
 		transaksiRepository repository.TransaksiRepository = repository.NewTransaksiRepository(db)
 		transaksiService    services.TransaksiService      = services.NewTransaksiService(transaksiRepository)
 		transaksiController controller.TransaksiController = controller.NewTransaksiController(transaksiService)
-		userRepository      repository.UserRepository      = repository.NewUserRepository(db)
-		userService         services.UserService           = services.NewUserService(userRepository)
-		userController      controller.UserController      = controller.NewUserController(userService, transaksiService, jwtService)
+		userRepository       repository.UserRepository       = repository.NewUserRepository(db)
+		userService          services.UserService            = services.NewUserService(userRepository)
+		userController       controller.UserController       = controller.NewUserController(userService, transaksiService, jwtService)
+		eventRepository repository.EventRepository = repository.NewEventRepository(db)
+		eventService    services.EventService      = services.NewEventRepository(eventRepository)
+		eventController controller.EventController = controller.NewEventController(eventService, jwtService)
 	)
 
 	if err := config.Seeder(db); err != nil {
@@ -32,7 +35,7 @@ func main() {
 	}
 
 	server := gin.Default()
-	routes.RouterUser(server, userController, jwtService)
+	routes.RouterUser(server, userController, eventController, jwtService)
 	routes.RouterTransaksi(server, transaksiController)
 	server.Use(middleware.CORSMiddleware())
 

@@ -39,7 +39,7 @@ func NewUserController(us services.UserService, ts services.TransaksiService, jw
 func (uc *userController) RegisterUser(ctx *gin.Context) {
 	var user dto.UserCreateDTO
 	if err := ctx.ShouldBind(&user); err != nil {
-		res := utils.BuildResponseFailed("Gagal Request Dari Body", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Mendapatkan Request Dari Body", "Failed", utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -114,8 +114,8 @@ func (uc *userController) LoginUser(ctx *gin.Context) {
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 	}
 
-	ctx.SetCookie("token", token, 60*60*24, "/", "localhost", false, true)
-	ctx.String(http.StatusOK, "Token saved")
+	// ctx.SetCookie("token", token, 60*60*24, "/", "localhost", false, true)
+  // ctx.String(http.StatusOK, "Token saved")
 	response := utils.BuildResponseSuccess("Berhasil Login", userResponse)
 	ctx.JSON(http.StatusOK, response)
 }
