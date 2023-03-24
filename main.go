@@ -31,6 +31,7 @@ func main() {
 	)
 
 	server := gin.Default()
+	routes.Router(server, userController, eventController, jwtService)
 	routes.RouterUser(server, userController, eventController, jwtService)
 	routes.RouterTransaksi(server, transaksiController)
 	server.Use(middleware.CORSMiddleware())
