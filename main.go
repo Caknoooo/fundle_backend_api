@@ -30,10 +30,6 @@ func main() {
 		eventController controller.EventController = controller.NewEventController(eventService, jwtService)
 	)
 
-	if err := config.Seeder(db); err != nil {
-		log.Fatalf("error seeding database: %v", err)
-	}
-
 	server := gin.Default()
 	routes.RouterUser(server, userController, eventController, jwtService)
 	routes.RouterTransaksi(server, transaksiController)
@@ -44,4 +40,9 @@ func main() {
 		port = "8888"
 	}
 	server.Run(":" + port)
+
+	if err := config.Seeder(db); err != nil {
+		log.Fatalf("error seeding database: %v", err)
+	}
+
 }

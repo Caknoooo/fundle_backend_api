@@ -14,6 +14,7 @@ type EventRepository interface {
 	GetAllEvent(ctx context.Context) ([]entities.Event, error)
 	GetAllEventByUserID(ctx context.Context, userID uuid.UUID) ([]entities.Event, error)
 	GetEventByID(ctx context.Context, eventID uuid.UUID) (entities.Event, error)
+	LikeEventByEventID(ctx context.Context, userID uuid.UUID, eventID uuid.UUID) error
 	UpdateEvent(ctx context.Context, event entities.Event) error
 	DeleteEvent(ctx context.Context, eventID uuid.UUID) error
 }
@@ -61,7 +62,7 @@ func (er *eventRepository) GetEventByID(ctx context.Context, eventID uuid.UUID) 
 
 func (er *eventRepository) LikeEventByEventID(ctx context.Context, userID uuid.UUID, eventID uuid.UUID) error {
 	var like entities.Like
-	if err := er.connection.Where("user_id = ? AND event_id = ?", userID, eventID).Find(&like).Error; err != nil {
+	if err := er.connection.Where("user_id = ? AND event_id = ?", userID, eventID).Find(&like).Error; err == nil {
 		return errors.New("User sudah melakukan like pada event ini")
 	}
 
@@ -73,7 +74,7 @@ func (er *eventRepository) LikeEventByEventID(ctx context.Context, userID uuid.U
 	if err := er.connection.Create(&like).Error; err != nil {
 		return err
 	}
-	
+
 	var event entities.Event
 	if err := er.connection.Where("id = ?", eventID).Find(&event).Error; err != nil {
 		return err

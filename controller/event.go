@@ -122,12 +122,12 @@ func (ec *eventController) LikeEventByEventID(ctx *gin.Context) {
 	}
 
 	if err = ec.eventService.LikeEventByEventID(ctx, user_uuid, event_uuid); err != nil {
-		res := utils.BuildResponseFailed("Gagal Like Blog", "Blog Tidak Ditemukan", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Like Event", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Berhasil Like Blog", utils.EmptyObj{})
+	res := utils.BuildResponseSuccess("Berhasil Like Event", utils.EmptyObj{})
 	ctx.JSON(http.StatusOK, res)
 }
 

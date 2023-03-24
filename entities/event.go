@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"google.golang.org/genproto/googleapis/type/decimal"
 )
 
 type Event struct {
@@ -13,7 +12,7 @@ type Event struct {
 	Nama           string          `gorm:"type:varchar(100)" json:"nama"`
 	DeskripsiEvent string          `gorm:"type:text" json:"deskripsi_event"`
 	JenisEvent     string          `gorm:"type:varchar(100)" json:"jenis_event"`
-	JumlahDonasi   decimal.Decimal `gorm:"type:decimal(15,2)" json:"jumlah_donasi"`
+	JumlahDonasi   float64 `gorm:"type:float" json:"jumlah_donasi"`
 	LikeCount      uint64          `json:"like_count"`
 	FotoEvent      string          `gorm:"type:varchar(100)" json:"foto_event"`
 	ExpiredDonasi  time.Time       `gorm:"datetime" json:"expired_donasi"`

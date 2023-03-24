@@ -35,6 +35,6 @@ func RouterTransaksi(route *gin.Engine, TransaksiController controller.Transaksi
 		eventRoutes.GET("/get/:id", EventController.GetEventByID)
 		eventRoutes.PUT("/:id", middleware.Authenticate(jwtService), EventController.UpdateEvent)
 		eventRoutes.DELETE("/:id", middleware.Authenticate(jwtService), EventController.DeleteEvent)
-		eventRoutes.POST("/like/:user_id/:event_id", middleware.Authenticate(jwtService), EventController.LikeEventByEventID)
+		eventRoutes.GET("/like/:user_id/:event_id", middleware.Authenticate(jwtService), EventController.LikeEventByEventID)
 	}
 }

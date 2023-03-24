@@ -52,7 +52,7 @@ func (es *eventService) GetEventByID(ctx context.Context, eventID uuid.UUID) (en
 }
 
 func (es *eventService) LikeEventByEventID(ctx context.Context, userID uuid.UUID, eventID uuid.UUID) (error) {
-	return es.LikeEventByEventID(ctx, userID, eventID)
+	return es.eventRepository.LikeEventByEventID(ctx, userID, eventID)
 }
 
 func (es *eventService) UpdateEvent(ctx context.Context, eventDTO dto.EventUpdateDTO) error {
