@@ -18,10 +18,10 @@ type Event struct {
 	ExpiredDonasi    time.Time          `gorm:"datetime" json:"expired_donasi"`
 	Is_target_full   bool               `gorm:"type:boolean" json:"is_target_full"`
 	Is_expired       bool               `gorm:"type:boolean" json:"is_expired"`
-	
+
 	UserID           uuid.UUID          `gorm:"type:uuid" json:"user_id"`
 	User             User               `gorm:"foreignKey:UserID" json:"user"`
 	Likes            []Like             `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"likes"`
-	HistoryPenarikan []HistoryPenarikan `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"with_drawal,omitempty"`
+	HistoryPenarikan []HistoryPenarikan `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"history_penarikan"`
 	Transaksi        []Transaksi        `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"transaksi,omitempty"`
 }

@@ -15,9 +15,8 @@ type User struct {
 	Role     string    `gorm:"type:varchar(100)" json:"role"`
 
 	Transaksi            []Transaksi            `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"transaksi,omitempty"`
-	Events               []Event                `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"event,omitempty"`
+	Events               []Event                `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"events,omitempty"`
 	Likes                []Like                 `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"likes,omitempty"`
-	// HistoryPenarikan     []HistoryPenarikan     `gorm:"foreignKey:UserID:constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"history_penarikan_users,omitempty"`
 
 	Timestamp
 }

@@ -30,7 +30,7 @@ func NewEventRepository(db *gorm.DB) EventRepository {
 }
 
 func (er *eventRepository) CreateEvent(ctx context.Context, event entities.Event) (entities.Event, error) {
-	if err := er.connection.Create(&event).Error; err != nil {
+	if err := er.connection.Preload("User").Create(&event).Error; err != nil {
 		return entities.Event{}, nil
 	}
 	return event, nil
@@ -38,7 +38,7 @@ func (er *eventRepository) CreateEvent(ctx context.Context, event entities.Event
 
 func (er *eventRepository) GetAllEvent(ctx context.Context) ([]entities.Event, error) {
 	var events []entities.Event
-	if err := er.connection.Find(&events).Error; err != nil {
+	if err := er.connection.Preload("User").Preload("Likes").Find(&events).Error; err != nil {
 		return nil, err
 	}
 	return events, nil
@@ -46,7 +46,7 @@ func (er *eventRepository) GetAllEvent(ctx context.Context) ([]entities.Event, e
 
 func (er *eventRepository) GetAllEventByUserID(ctx context.Context, userID uuid.UUID) ([]entities.Event, error) {
 	var events []entities.Event
-	if err := er.connection.Where("user_id = ?", userID).Find(&events).Error; err != nil {
+	if err := er.connection.Preload("User").Preload("Likes").Where("user_id = ?", userID).Find(&events).Error; err != nil {
 		return nil, err
 	}
 	return events, nil
@@ -54,7 +54,7 @@ func (er *eventRepository) GetAllEventByUserID(ctx context.Context, userID uuid.
 
 func (er *eventRepository) GetEventByID(ctx context.Context, eventID uuid.UUID) (entities.Event, error) {
 	var event entities.Event
-	if err := er.connection.Where("id = ?", eventID).Take(&event).Error; err != nil {
+	if err := er.connection.Preload("User").Preload("Likes").Where("id = ?", eventID).Take(&event).Error; err != nil {
 		return entities.Event{}, err
 	}
 	return event, nil
@@ -62,13 +62,19 @@ func (er *eventRepository) GetEventByID(ctx context.Context, eventID uuid.UUID) 
 
 func (er *eventRepository) LikeEventByEventID(ctx context.Context, userID uuid.UUID, eventID uuid.UUID) error {
 	var like entities.Like
-	if err := er.connection.Where("user_id = ? AND event_id = ?", userID, eventID).Find(&like).Error; err == nil {
+	if err := er.connection.Where("user_id = ? AND event_id = ?", userID, eventID).Find(&like).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+	}
+	
+	if like.ID != uuid.Nil {
 		return errors.New("User sudah melakukan like pada event ini")
 	}
 
 	like = entities.Like{
 		EventID: eventID,
-		UserID: userID,
+		UserID:  userID,
 	}
 
 	if err := er.connection.Create(&like).Error; err != nil {
