@@ -9,7 +9,6 @@ import (
 
 type TransaksiRepository interface {
 	CreateTransaksi(ctx context.Context, transaksi entities.Transaksi) (entities.Transaksi, error)
-	CreateTransaksiUser(ctx context.Context, transaksi entities.User_Transaksi) (entities.User_Transaksi, error)
 	GetAllTransaksi(ctx context.Context) ([]entities.Transaksi, error)
 }
 
@@ -26,13 +25,6 @@ func NewTransaksiRepository(db *gorm.DB) TransaksiRepository {
 func (tr *transaksiRepository) CreateTransaksi(ctx context.Context, transaksi entities.Transaksi) (entities.Transaksi, error) {
 	if err := tr.connection.Create(&transaksi).Error; err != nil {
 		return entities.Transaksi{}, err
-	}
-	return transaksi, nil
-}
-
-func (tr *transaksiRepository) CreateTransaksiUser(ctx context.Context, transaksi entities.User_Transaksi) (entities.User_Transaksi, error) {
-	if err := tr.connection.Create(&transaksi).Error; err != nil {
-		return entities.User_Transaksi{}, err
 	}
 	return transaksi, nil
 }

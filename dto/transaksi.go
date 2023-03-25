@@ -13,9 +13,5 @@ type TransaksiCreateDTO struct {
 	Tanggal_Transaksi   time.Time       `gorm:"datetime" json:"tangal_transaksi" binding:"required"`
 	EventID             uuid.UUID       `gorm:"type:uuid" json:"event_id" form:"user_id" binding:"required"`
 	PembayaranID        uuid.UUID       `gorm:"type:uuid" json:"pembayaran_id" binding:"required"`
-}
-
-type TransaksiUserCreateDTO struct {
-	UserID      uuid.UUID `gorm:"type:uuid" json:"user_id" binding:"required"`
-	TransaksiID uuid.UUID `gorm:"type:uuid" json:"transaksi_id" binding:"required"`
+	UserID              uuid.UUID       `json:"user_id" form:"user_id" binding:"required"`
 }

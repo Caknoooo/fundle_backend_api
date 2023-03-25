@@ -19,24 +19,29 @@ type UserController interface {
 	LogoutUser(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
 	DeleteUser(ctx *gin.Context)
+	CreateTransaksiUser(ctx *gin.Context)
 }
 
 type userController struct {
-	jwtService  services.JWTService
-	userService services.UserService
+	jwtService       services.JWTService
+	userService      services.UserService
+	transaksiService services.TransaksiService
 }
 
-func NewUserController(us services.UserService, jwt services.JWTService) UserController {
+func NewUserController(us services.UserService, ts services.TransaksiService, jwt services.JWTService) UserController {
 	return &userController{
-		jwtService:  jwt,
-		userService: us,
+		jwtService:       jwt,
+		userService:      us,
+		transaksiService: ts,
 	}
 }
 
 func (uc *userController) RegisterUser(ctx *gin.Context) {
 	var user dto.UserCreateDTO
 	if err := ctx.ShouldBind(&user); err != nil {
-		panic(err) // harus diperbaiki
+		res := utils.BuildResponseFailed("Gagal Request Dari Body", "Failed", utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
 	}
 
 	if checkUser, _ := uc.userService.CheckUser(ctx.Request.Context(), user.Email); checkUser {
@@ -104,13 +109,13 @@ func (uc *userController) LoginUser(ctx *gin.Context) {
 	}
 	token := uc.jwtService.GenerateToken(user.ID, user.Role)
 	userResponse := entities.Authorization{
-		Token: token,
-		Role:  user.Role,
+		Token:     token,
+		Role:      user.Role,
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 	}
 
 	ctx.SetCookie("token", token, 60*60*24, "/", "localhost", false, true)
-  ctx.String(http.StatusOK, "Token saved")
+	ctx.String(http.StatusOK, "Token saved")
 	response := utils.BuildResponseSuccess("Berhasil Login", userResponse)
 	ctx.JSON(http.StatusOK, response)
 }
@@ -129,7 +134,7 @@ func (uc *userController) LogoutUser(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
-	
+
 	ctx.Header("Set-Cookie", "token=; Path=/; Max-Age=-1")
 	ctx.Header("Expires", "Thu, 01 Jan 1970 00:00:00 GMT")
 
@@ -181,4 +186,31 @@ func (uc *userController) DeleteUser(ctx *gin.Context) {
 
 	res := utils.BuildResponseSuccess("Berhasil Menghapus User", utils.EmptyObj{})
 	ctx.JSON(http.StatusOK, res)
+}
+
+func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
+	token := ctx.MustGet("token").(string)
+	_, err := uc.jwtService.GetUserIDByToken(token)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Memproses Request", "Token Tidak Valid", nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
+		return
+	}
+
+	var transaksi dto.TransaksiCreateDTO
+	if err := ctx.ShouldBind(&transaksi); err != nil {
+		res := utils.BuildResponseFailed("Gagal Request Dari Body", "Failed", utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := uc.transaksiService.CreateTransaksi(ctx.Request.Context(), transaksi)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Menambahkan Transaksi", "Failed", utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res1 := utils.BuildResponseSuccess("Berhasil Menambahkan Transaksi", result)
+	ctx.JSON(http.StatusOK, res1)
 }

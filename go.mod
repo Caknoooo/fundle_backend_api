@@ -9,7 +9,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/mashingan/smapping v0.1.19
 	golang.org/x/crypto v0.7.0
-	google.golang.org/genproto v0.0.0-20230323212658-478b75c54725
+	google.golang.org/genproto v0.0.0-20230322174352-cde4c949918d
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/gorm v1.24.7-0.20230306060331-85eaf9eeda11
 )

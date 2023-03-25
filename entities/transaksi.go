@@ -16,11 +16,6 @@ type Transaksi struct {
 	Event        Event      `gorm:"foreignKey:EventID" json:"event"`
 	PembayaranID uuid.UUID  `gorm:"type:uuid" json:"pembayaran_id"`
 	Pembayaran   Pembayaran `gorm:"foreignKey:PembayaranID" json:"pembayaran"`
-}
-
-type User_Transaksi struct {
-	TransaksiID uuid.UUID `gorm:"type:uuid" json:"transaksi_id"`
-	Transaksi   Transaksi `gorm:"foreignKey:TransaksiID" json:"transaksi"`
-	UserID      uuid.UUID `gorm:"type:uuid" json:"user_id"`
-	User        User      `gorm:"foreignKey:UserID" json:"user"`
+	UserID       uuid.UUID  `gorm:"type:uuid" json:"user_id"`
+	User         User       `gorm:"foreignKey:UserID" json:"user"`
 }

@@ -15,13 +15,16 @@ import (
 	"gorm.io/gorm"
 )
 
-func main() {	
+func main() {
 	var (
-		db             *gorm.DB                  = config.SetUpDatabaseConnection()
-		jwtService     services.JWTService       = services.NewJWTService()
-		userRepository repository.UserRepository = repository.NewUserRepository(db)
-		userService    services.UserService      = services.NewUserService(userRepository)
-		userController controller.UserController = controller.NewUserController(userService, jwtService)
+		db                  *gorm.DB                       = config.SetUpDatabaseConnection()
+		jwtService          services.JWTService            = services.NewJWTService()
+		transaksiRepository repository.TransaksiRepository = repository.NewTransaksiRepository(db)
+		transaksiService    services.TransaksiService      = services.NewTransaksiService(transaksiRepository)
+		transaksiController controller.TransaksiController = controller.NewTransaksiController(transaksiService)
+		userRepository      repository.UserRepository      = repository.NewUserRepository(db)
+		userService         services.UserService           = services.NewUserService(userRepository)
+		userController      controller.UserController      = controller.NewUserController(userService, transaksiService, jwtService)
 	)
 
 	if err := config.Seeder(db); err != nil {
@@ -29,7 +32,8 @@ func main() {
 	}
 
 	server := gin.Default()
-	routes.Router(server, userController, jwtService)
+	routes.RouterUser(server, userController, jwtService)
+	routes.RouterTransaksi(server, transaksiController)
 	server.Use(middleware.CORSMiddleware())
 
 	port := os.Getenv("PORT")

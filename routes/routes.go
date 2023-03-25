@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Router(route *gin.Engine, UserController controller.UserController, jwtService services.JWTService) {
+func RouterUser(route *gin.Engine, UserController controller.UserController, jwtService services.JWTService) {
 	routes := route.Group("/api/user")
 	{
 		routes.POST("", UserController.RegisterUser)
@@ -17,5 +17,13 @@ func Router(route *gin.Engine, UserController controller.UserController, jwtServ
 		routes.DELETE("/", middleware.Authenticate(jwtService), UserController.DeleteUser)
 		routes.PUT("/", middleware.Authenticate(jwtService), UserController.UpdateUser)
 		routes.GET("/me", middleware.Authenticate(jwtService), UserController.MeUser)
+		routes.GET("/event", middleware.Authenticate(jwtService), UserController.CreateTransaksiUser)
+	}
+}
+
+func RouterTransaksi(route *gin.Engine, TransaksiController controller.TransaksiController) {
+	routes := route.Group("/api/transaksi")
+	{
+		routes.GET("/event", TransaksiController.GetAllTransaksi)
 	}
 }
