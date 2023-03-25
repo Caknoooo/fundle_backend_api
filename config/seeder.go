@@ -47,6 +47,14 @@ func ListBankSeeder(db *gorm.DB) error {
 		},
 	}
 
+	hasTable := db.Migrator().HasTable(&entities.ListBank{})
+	if !hasTable {
+		// Create table entities.ListBank
+		if err := db.AutoMigrate(&entities.ListBank{}); err != nil {
+			return err
+		}
+	}
+
 	for _, data := range listBanks {
 		var bank entities.ListBank
 		err := db.Where(&entities.ListBank{ID: data.ID}).First(&bank).Error
@@ -80,10 +88,19 @@ func StatusPembayaranSeeder(db *gorm.DB) error {
 		},
 	}
 
+	hasTable := db.Migrator().HasTable(&entities.StatusPembayaran{})
+	if !hasTable {
+		// Create table entities.StatusPembayaran
+		if err := db.AutoMigrate(&entities.StatusPembayaran{}); err != nil {
+			return err
+		}
+	}
+
+
 	for _, data := range statusPembayaran {
 		var status_pembayaran entities.StatusPembayaran
-		err := db.Where(entities.StatusPembayaran{ID: data.ID}).First(&status_pembayaran).Error
-		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		err := db.Where(&entities.StatusPembayaran{ID: data.ID}).First(&status_pembayaran).Error
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}
 

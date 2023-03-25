@@ -13,9 +13,11 @@ type User struct {
 	Email    string    `gorm:"type:varchar(100)" json:"email"`
 	Password string    `gorm:"type:varchar(100)" json:"password"`
 	Role     string    `gorm:"type:varchar(100)" json:"role"`
-	
-	Events   []Event   `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"event,omitempty"`
-	Likes    []Like    `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"likes,omitempty"`
+
+	Transaksi            []Transaksi            `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"transaksi,omitempty"`
+	Events               []Event                `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"event,omitempty"`
+	Likes                []Like                 `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"likes,omitempty"`
+	// HistoryPenarikan     []HistoryPenarikan     `gorm:"foreignKey:UserID:constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"history_penarikan_users,omitempty"`
 
 	Timestamp
 }

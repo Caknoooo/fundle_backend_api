@@ -40,19 +40,13 @@ func SetUpDatabaseConnection() *gorm.DB {
 	}
 
 	if err := db.AutoMigrate(
-		entities.User{},
-		entities.Event{},
-<<<<<<< HEAD
-		entities.StatusPembayaran{},
-=======
-		entities.Like{}, 
-		entities.StatusPembayaran{}, 
->>>>>>> 935218e (fix: update bug for like)
-		entities.ListBank{},
-		entities.Pembayaran{},
-		entities.Transaksi{},
 		entities.HistoryPenarikan{},
 		entities.HistoryTransaksiUser{},
+		entities.User{},
+		entities.Event{},
+		entities.Like{},
+		entities.Pembayaran{},
+		entities.Transaksi{},
 	); err != nil {
 		fmt.Println(err)
 		panic(err)
