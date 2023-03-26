@@ -7,16 +7,17 @@ import (
 )
 
 type User struct {
-	ID       uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-	Nama     string    `gorm:"type:varchar(100)" json:"nama"`
-	NoTelp   string    `gorm:"type:varchar(30)" json:"no_telp"`
-	Email    string    `gorm:"type:varchar(100)" json:"email"`
-	Password string    `gorm:"type:varchar(100)" json:"password"`
-	Role     string    `gorm:"type:varchar(100)" json:"role"`
+	ID              uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
+	Nama            string    `gorm:"type:varchar(100)" json:"nama"`
+	NoTelp          string    `gorm:"type:varchar(30)" json:"no_telp"`
+	Email           string    `gorm:"type:varchar(100)" json:"email"`
+	Password        string    `gorm:"type:varchar(100)" json:"password"`
+	ConfirmPassword string    `gorm:"type:varchar(100)" json:"confirm_password"`
+	Role            string    `gorm:"type:varchar(100)" json:"role"`
 
-	Transaksi            []Transaksi            `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"transaksi,omitempty"`
-	Events               []Event                `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"events,omitempty"`
-	Likes                []Like                 `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"likes,omitempty"`
+	Transaksi []Transaksi `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"transaksi,omitempty"`
+	Events    []Event     `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"events,omitempty"`
+	Likes     []Like      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"likes,omitempty"`
 
 	Timestamp
 }

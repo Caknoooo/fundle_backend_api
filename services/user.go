@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Caknoooo/golang-clean_template/dto"
 	"github.com/Caknoooo/golang-clean_template/entities"
@@ -33,6 +34,10 @@ func NewUserService(ur repository.UserRepository) UserService {
 }
 
 func (us *userService) RegisterUser(ctx context.Context, userDTO dto.UserCreateDTO) (entities.User, error) {
+	if userDTO.Password != userDTO.ConfirmPassword {
+		return entities.User{}, errors.New("Invalid Password and Confirm Password")
+	}
+
 	user := entities.User{}
 	err := smapping.FillStruct(&user, smapping.MapFields(userDTO))
 	user.Role = "user"

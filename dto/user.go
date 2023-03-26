@@ -5,19 +5,20 @@ import (
 )
 
 type UserCreateDTO struct {
-	ID       uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-	Nama     string    `gorm:"type:varchar(100)" form:"nama" json:"nama" binding:"required"`
-	NoTelp   string    `gorm:"type:varchar(20)" form:"no_telp" json:"no_telp" binding:"required"`
-	Email    string    `gorm:"type:varchar(100)" form:"email" json:"email" binding:"required"`
-	Password string    `gorm:"type:varchar(100)" form:"password" json:"password" binding:"required"`
+	ID              uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
+	Nama            string    `gorm:"type:varchar(100)" form:"nama" json:"nama" binding:"required"`
+	NoTelp          string    `gorm:"type:varchar(20)" form:"no_telp" json:"no_telp" binding:"required"`
+	Email           string    `gorm:"type:varchar(100)" form:"email" json:"email" binding:"required"`
+	Password        string    `gorm:"type:varchar(100)" form:"password" json:"password" binding:"required"`
+	ConfirmPassword string    `gorm:"type:varchar(100)" form:"confirm_password" json:"confirm_password" binding:"required"`
 }
 
 type UserUpdateDTO struct {
 	ID       uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-	Nama     string    `gorm:"type:varchar(100)" form:"nama" json:"nama" binding:"required"`
-	NoTelp   string    `gorm:"type:varchar(20)" form:"no_telp" json:"no_telp" binding:"required"`
-	Email    string    `gorm:"type:varchar(100)" form:"email" json:"email" binding:"required"`
-	Password string    `gorm:"type:varchar(100)" form:"password" json:"password" binding:"required"`
+	Nama     *string    `gorm:"type:varchar(100)" form:"nama" json:"nama,omitempty"`
+	NoTelp   *string    `gorm:"type:varchar(20)" form:"no_telp" json:"no_telp,omitempty"`
+	Email    *string    `gorm:"type:varchar(100)" form:"email" json:"email,omitempty"`
+	Password *string    `gorm:"type:varchar(100)" form:"password" json:"password,omitempty"`
 }
 
 type UserLoginDTO struct {

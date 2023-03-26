@@ -51,7 +51,7 @@ func (uc *userController) RegisterUser(ctx *gin.Context) {
 	}
 	result, err := uc.userService.RegisterUser(ctx.Request.Context(), user)
 	if err != nil {
-		res := utils.BuildResponseFailed("Gagal Menambahkan User", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Menambahkan User", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
