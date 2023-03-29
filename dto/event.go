@@ -9,20 +9,33 @@ import (
 type EventCreateDTO struct {
 	ID             uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	RekeningEvent  string    `json:"rekening_event" form:"rekening_event" binding:"required"`
-	Nama           string    `json:"nama" form:"nama" binding:"required"`
+	JudulEvent         string    `json:"judul_event" form:"judul_event" binding:"required"`
 	DeskripsiEvent string    `json:"deskripsi_event" form:"deskripsi_event" binding:"required"`
 	JenisEvent     string    `json:"jenis_event" form:"jenis_event" binding:"required"`
 	JumlahDonasi   float64   `json:"jumlah_donasi" form:"jumlah_donasi" binding:"required"`
 	MaxDonasi      float64   `json:"max_donasi" form:"max_donasi" binding:"required"`
 	FotoEvent      string    `json:"foto_event" form:"foto_event" binding:"required"`
 	ExpiredDonasi  time.Time `json:"expired_donasi" form:"expired_donasi" binding:"required"`
-	UserID         uuid.UUID `json:"user_id" form:"user_id" binding:"required"`
+
+	NamaDepanPembuat    string `json:"nama_depan_pembuat" form:"nama_depan_pembuat" binding:"required"`
+	NamaBelakangPembuat string `json:"nama_belakang_pembuat" form:"nama_belakang_pembuat" binding:"required"`
+	NomorTeleponPembuat string `json:"nomor_telepon_pembuat" form:"nomor_telepon_pembuat" binding:"required"`
+	NomorKTP            string `json:"nomor_ktp" form:"nomor_ktp" binding:"required"`
+	Pekerjaan           string `json:"pekerjaan" form:"pekerjaan" binding:"required"`
+	AsalInstansi        string `json:"asal_instansi" form:"asal_instansi" binding:"required"`
+
+	NamaDepanPenerima    string `json:"nama_depan_penerima" form:"nama_depan_penerima" binding:"required"`
+	NamaBelakangPenerima string `json:"nama_belakang_penerima" form:"nama_belakang_penerima" binding:"required"`
+	TujuanGalangDana     string `json:"tujuan_galang_dana" form:"tujuan_galang_dana" binding:"required"`
+	LokasiTujuan         string `json:"lokasi_tujuan" form:"lokasi_tujuan" binding:"required"`
+
+	UserID uuid.UUID `json:"user_id" form:"user_id" binding:"required"`
 }
 
 type EventUpdateDTO struct {
 	ID             uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	RekeningEvent  *string   `json:"rekening_event" form:"rekening_event"`
-	Nama           *string   `json:"nama" form:"nama"`
+	Judul          *string   `json:"judul" form:"judul"`
 	DeskripsiEvent *string   `json:"deskripsi_event" form:"deskripsi_event"`
 	JenisEvent     *string   `json:"jenis_event" form:"jenis_event"`
 	JumlahDonasi   *float64  `json:"jumlah_donasi" form:"jumlah_donasi"`
@@ -63,7 +76,7 @@ type EventResponseListDonasiDTO struct {
 }
 
 type EventResponseMyEventDTO struct {
-	Nama           string  `json:"nama" form:"nama"`
-	DeskripsiEvent string  `json:"deskripsi_event" form:"deskripsi_event"`
-	FotoEvent      string  `json:"foto_event" form:"foto_event"`
+	Nama           string `json:"nama" form:"nama"`
+	DeskripsiEvent string `json:"deskripsi_event" form:"deskripsi_event"`
+	FotoEvent      string `json:"foto_event" form:"foto_event"`
 }

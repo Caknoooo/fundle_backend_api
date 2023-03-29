@@ -63,7 +63,7 @@ func (ec *eventController) GetAllEvent(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (ec *eventController) GetAllEventByUserID(ctx *gin.Context){
+func (ec *eventController) GetAllEventByUserID(ctx *gin.Context) {
 	userID := ctx.Param("user_id")
 	uuid, err := uuid.Parse(userID)
 	if err != nil {

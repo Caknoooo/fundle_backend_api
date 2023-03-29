@@ -43,10 +43,12 @@ func SetUpDatabaseConnection() *gorm.DB {
 		entities.HistoryPenarikan{},
 		entities.HistoryTransaksiUser{},
 		entities.User{},
-		entities.Event{},
 		entities.Like{},
 		entities.Pembayaran{},
 		entities.Transaksi{},
+		entities.PenerimaDonasi{},
+		entities.PembuatDonasi{},
+		entities.Event{},
 	); err != nil {
 		fmt.Println(err)
 		panic(err)

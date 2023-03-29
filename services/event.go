@@ -30,12 +30,13 @@ func NewEventRepository(er repository.EventRepository) EventService {
 	}
 }
 
-func (es *eventService) CreateEvent(ctx context.Context, eventDTO dto.EventCreateDTO) (entities.Event, error) {
+func (es *eventService) CreateEvent(ctx context.Context, eventDTO dto.EventCreateDTO)  (entities.Event, error) {
 	event := entities.Event{}
 	err := smapping.FillStruct(&event, smapping.MapFields(eventDTO))
 	if err != nil {
 		return entities.Event{}, err
 	}
+	event.User = entities.User{ID: eventDTO.ID}
 	return es.eventRepository.CreateEvent(ctx, event)
 }
 
