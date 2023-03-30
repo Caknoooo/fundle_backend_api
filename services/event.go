@@ -69,7 +69,7 @@ func (es *eventService) PatchEvent(ctx context.Context, eventDTO dto.EventUpdate
 	if err := smapping.FillStruct(&event, smapping.MapFields(eventDTO)); err != nil {
 		return nil
 	}
-	return es.eventRepository.UpdateEvent(ctx, event)
+	return es.eventRepository.PatchEvent(ctx, event, eventID)
 }
 
 func (es *eventService) DeleteEvent(ctx context.Context, eventID uuid.UUID) error {

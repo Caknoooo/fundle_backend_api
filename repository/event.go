@@ -16,6 +16,7 @@ type EventRepository interface {
 	GetEventByID(ctx context.Context, eventID uuid.UUID) (entities.Event, error)
 	LikeEventByEventID(ctx context.Context, userID uuid.UUID, eventID uuid.UUID) error
 	UpdateEvent(ctx context.Context, event entities.Event) error
+	PatchEvent(ctx context.Context, event entities.Event, eventID uuid.UUID) error
 	DeleteEvent(ctx context.Context, eventID uuid.UUID) error
 }
 
@@ -100,7 +101,7 @@ func (er *eventRepository) UpdateEvent(ctx context.Context, event entities.Event
 }
 
 func (er *eventRepository) PatchEvent(ctx context.Context, event entities.Event, eventID uuid.UUID) error {
-	if err := er.connection.Updates(&event).Error; err != nil {
+	if err := er.connection.Where("id = ?", eventID).Updates(&event).Error; err != nil {
 		return err
 	}
 	return nil
