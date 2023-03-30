@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
-	"time"
 	"fmt"
+	"time"
 
 	"github.com/Caknoooo/golang-clean_template/entities"
 	"github.com/google/uuid"
@@ -127,7 +127,7 @@ func (er *eventRepository) PatchEvent(ctx context.Context, event entities.Event,
 		return errors.New("Event Has Expired")
 	}
 
-	if updatedEvent.JumlahDonasi >= updatedEvent.MaxDonasi{
+	if updatedEvent.JumlahDonasi >= updatedEvent.MaxDonasi {
 		updatedEvent.Is_target_full = true
 	}
 
