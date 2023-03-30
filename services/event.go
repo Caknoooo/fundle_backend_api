@@ -13,10 +13,11 @@ import (
 type EventService interface {
 	CreateEvent(ctx context.Context, eventDTO dto.EventCreateDTO) (entities.Event, error)
 	GetAllEvent(ctx context.Context) ([]entities.Event, error)
-	GetAllEventByUserID(ctx context.Context, userID uuid.UUID)([]entities.Event, error)
+	GetAllEventByUserID(ctx context.Context, userID uuid.UUID) ([]entities.Event, error)
 	GetEventByID(ctx context.Context, eventID uuid.UUID) (entities.Event, error)
-	LikeEventByEventID(ctx context.Context, userID uuid.UUID, eventID uuid.UUID) (error)
+	LikeEventByEventID(ctx context.Context, userID uuid.UUID, eventID uuid.UUID) error
 	UpdateEvent(ctx context.Context, eventDTO dto.EventUpdateDTO) error
+	PatchEvent(ctx context.Context, eventDTO dto.EventUpdateDTO, eventID uuid.UUID) error
 	DeleteEvent(ctx context.Context, eventID uuid.UUID) error
 }
 
@@ -30,13 +31,12 @@ func NewEventRepository(er repository.EventRepository) EventService {
 	}
 }
 
-func (es *eventService) CreateEvent(ctx context.Context, eventDTO dto.EventCreateDTO)  (entities.Event, error) {
+func (es *eventService) CreateEvent(ctx context.Context, eventDTO dto.EventCreateDTO) (entities.Event, error) {
 	event := entities.Event{}
 	err := smapping.FillStruct(&event, smapping.MapFields(eventDTO))
 	if err != nil {
 		return entities.Event{}, err
 	}
-	event.User = entities.User{ID: eventDTO.ID}
 	return es.eventRepository.CreateEvent(ctx, event)
 }
 
@@ -44,7 +44,7 @@ func (es *eventService) GetAllEvent(ctx context.Context) ([]entities.Event, erro
 	return es.eventRepository.GetAllEvent(ctx)
 }
 
-func (es *eventService) GetAllEventByUserID(ctx context.Context, userID uuid.UUID)([]entities.Event, error) {
+func (es *eventService) GetAllEventByUserID(ctx context.Context, userID uuid.UUID) ([]entities.Event, error) {
 	return es.eventRepository.GetAllEventByUserID(ctx, userID)
 }
 
@@ -52,11 +52,19 @@ func (es *eventService) GetEventByID(ctx context.Context, eventID uuid.UUID) (en
 	return es.eventRepository.GetEventByID(ctx, eventID)
 }
 
-func (es *eventService) LikeEventByEventID(ctx context.Context, userID uuid.UUID, eventID uuid.UUID) (error) {
+func (es *eventService) LikeEventByEventID(ctx context.Context, userID uuid.UUID, eventID uuid.UUID) error {
 	return es.eventRepository.LikeEventByEventID(ctx, userID, eventID)
 }
 
 func (es *eventService) UpdateEvent(ctx context.Context, eventDTO dto.EventUpdateDTO) error {
+	event := entities.Event{}
+	if err := smapping.FillStruct(&event, smapping.MapFields(eventDTO)); err != nil {
+		return nil
+	}
+	return es.eventRepository.UpdateEvent(ctx, event)
+}
+
+func (es *eventService) PatchEvent(ctx context.Context, eventDTO dto.EventUpdateDTO, eventID uuid.UUID) error {
 	event := entities.Event{}
 	if err := smapping.FillStruct(&event, smapping.MapFields(eventDTO)); err != nil {
 		return nil

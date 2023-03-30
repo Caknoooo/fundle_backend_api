@@ -18,17 +18,20 @@ type EventController interface {
 	LikeEventByEventID(ctx *gin.Context)
 	UpdateEvent(ctx *gin.Context)
 	DeleteEvent(ctx *gin.Context)
+	GetAllEventLastTransaksi(ctx *gin.Context)
 }
 
 type eventController struct {
-	jwtService   services.JWTService
-	eventService services.EventService
+	jwtService       services.JWTService
+	eventService     services.EventService
+	transaksiService services.TransaksiService
 }
 
-func NewEventController(es services.EventService, jwt services.JWTService) EventController {
+func NewEventController(es services.EventService, ts services.TransaksiService, jwt services.JWTService) EventController {
 	return &eventController{
-		jwtService:   jwt,
-		eventService: es,
+		jwtService:       jwt,
+		eventService:     es,
+		transaksiService: ts,
 	}
 }
 
@@ -174,5 +177,24 @@ func (ec *eventController) DeleteEvent(ctx *gin.Context) {
 	}
 
 	res := utils.BuildResponseSuccess("Berhasil Delete Event", utils.EmptyObj{})
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (ec *eventController) GetAllEventLastTransaksi(ctx *gin.Context) {
+	id := ctx.Param("event_id")
+	uuid, err := uuid.Parse(id)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Parse Id", err.Error(), utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+	events, err := ec.transaksiService.GetAllEventLastTransaksi(ctx, uuid)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Mendapatkan List Transaksi", err.Error(), utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess("Berhasil Mendapatkan List Transaksi", events)
 	ctx.JSON(http.StatusOK, res)
 }

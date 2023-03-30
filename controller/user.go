@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/Caknoooo/golang-clean_template/services"
 	"github.com/Caknoooo/golang-clean_template/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type UserController interface {
@@ -20,19 +22,24 @@ type UserController interface {
 	UpdateUser(ctx *gin.Context)
 	DeleteUser(ctx *gin.Context)
 	CreateTransaksiUser(ctx *gin.Context)
+	GetTransaksiUser(ctx *gin.Context)
 }
 
 type userController struct {
-	jwtService       services.JWTService
-	userService      services.UserService
-	transaksiService services.TransaksiService
+	jwtService        services.JWTService
+	userService       services.UserService
+	transaksiService  services.TransaksiService
+	pembayaranService services.PembayaranService
+	eventService      services.EventService
 }
 
-func NewUserController(us services.UserService, ts services.TransaksiService, jwt services.JWTService) UserController {
+func NewUserController(us services.UserService, ts services.TransaksiService, ps services.PembayaranService, es services.EventService, jwt services.JWTService) UserController {
 	return &userController{
-		jwtService:       jwt,
-		userService:      us,
-		transaksiService: ts,
+		jwtService:        jwt,
+		userService:       us,
+		transaksiService:  ts,
+		pembayaranService: ps,
+		eventService:      es,
 	}
 }
 
@@ -51,7 +58,7 @@ func (uc *userController) RegisterUser(ctx *gin.Context) {
 	}
 	result, err := uc.userService.RegisterUser(ctx.Request.Context(), user)
 	if err != nil {
-		res := utils.BuildResponseFailed("Gagal Menambahkan User", err.Error(), utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Menambahkan User", "Failed", utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -115,7 +122,7 @@ func (uc *userController) LoginUser(ctx *gin.Context) {
 	}
 
 	// ctx.SetCookie("token", token, 60*60*24, "/", "localhost", false, true)
-  // ctx.String(http.StatusOK, "Token saved")
+	// ctx.String(http.StatusOK, "Token saved")
 	response := utils.BuildResponseSuccess("Berhasil Login", userResponse)
 	ctx.JSON(http.StatusOK, response)
 }
@@ -190,27 +197,99 @@ func (uc *userController) DeleteUser(ctx *gin.Context) {
 
 func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 	token := ctx.MustGet("token").(string)
-	_, err := uc.jwtService.GetUserIDByToken(token)
+	user_id, err := uc.jwtService.GetUserIDByToken(token)
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Memproses Request", "Token Tidak Valid", nil)
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
 		return
 	}
 
-	var transaksi dto.TransaksiCreateDTO
-	if err := ctx.ShouldBind(&transaksi); err != nil {
+	// var transaksi dto.TransaksiCreateDTO
+	// if err := ctx.ShouldBind(&transaksi); err != nil {
+	// 	res := utils.BuildResponseFailed("Gagal Request Dari Body", "Failed", utils.EmptyObj{})
+	// 	ctx.JSON(http.StatusBadRequest, res)
+	// 	return
+	// }
+
+	var pembayaran dto.PembayaranDTO
+	if err := ctx.ShouldBind(&pembayaran); err != nil {
 		res := utils.BuildResponseFailed("Gagal Request Dari Body", "Failed", utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	result, err := uc.transaksiService.CreateTransaksi(ctx.Request.Context(), transaksi)
+	result, err := uc.pembayaranService.CreatePembayaran(ctx.Request.Context(), pembayaran)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Menambahkan Pembayaran", "Failed", utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	id := ctx.Param("event_id")
+	uuid, err := uuid.Parse(id)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Parse Id", err.Error(), utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	transaksi := dto.TransaksiCreateDTO{
+		Jumlah_Donasi_Event: result.Jumlah,
+		Tanggal_Transaksi:   time.Now(),
+		EventID:             uuid,
+		PembayaranID:        result.ID,
+		UserID:              user_id,
+	}
+
+	result1, err := uc.transaksiService.CreateTransaksi(ctx.Request.Context(), transaksi)
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Menambahkan Transaksi", "Failed", utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res1 := utils.BuildResponseSuccess("Berhasil Menambahkan Transaksi", result)
+	event, err := uc.eventService.GetEventByID(ctx.Request.Context(), uuid)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Menambahkan Event", "Failed", utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	var TempJumlahDonasi float64 = event.JumlahDonasi + result1.Jumlah_Donasi_Event
+
+	eventDTO := dto.EventUpdateDTO{
+		JumlahDonasi: &TempJumlahDonasi,
+	}
+
+	fmt.Println(eventDTO)
+
+	uc.eventService.PatchEvent(ctx.Request.Context(), eventDTO, uuid)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Mengupdate Jumlah Donasi Event", "Failed", utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res1 := utils.BuildResponseSuccess("Berhasil Menambahkan Transaksi", result1)
 	ctx.JSON(http.StatusOK, res1)
+}
+
+func (uc *userController) GetTransaksiUser(ctx *gin.Context) {
+	token := ctx.MustGet("token").(string)
+	userID, err := uc.jwtService.GetUserIDByToken(token)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Memproses Request", "Token Tidak Valid", nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
+		return
+	}
+
+	result, err := uc.transaksiService.GetAllTransaksiByUserID(ctx.Request.Context(), userID)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Mendapatkan User", err.Error(), utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess("Berhasil Mendapatkan User", result)
+	ctx.JSON(http.StatusOK, res)
 }

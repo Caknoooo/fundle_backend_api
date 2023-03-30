@@ -67,7 +67,7 @@ func (er *eventRepository) LikeEventByEventID(ctx context.Context, userID uuid.U
 			return err
 		}
 	}
-	
+
 	if like.ID != uuid.Nil {
 		return errors.New("User sudah melakukan like pada event ini")
 	}
@@ -93,6 +93,13 @@ func (er *eventRepository) LikeEventByEventID(ctx context.Context, userID uuid.U
 }
 
 func (er *eventRepository) UpdateEvent(ctx context.Context, event entities.Event) error {
+	if err := er.connection.Updates(&event).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (er *eventRepository) PatchEvent(ctx context.Context, event entities.Event, eventID uuid.UUID) error {
 	if err := er.connection.Updates(&event).Error; err != nil {
 		return err
 	}

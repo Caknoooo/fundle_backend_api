@@ -17,22 +17,24 @@ import (
 
 func main() {
 	var (
-		db                  *gorm.DB                       = config.SetUpDatabaseConnection()
-		jwtService          services.JWTService            = services.NewJWTService()
-		transaksiRepository repository.TransaksiRepository = repository.NewTransaksiRepository(db)
-		transaksiService    services.TransaksiService      = services.NewTransaksiService(transaksiRepository)
-		transaksiController controller.TransaksiController = controller.NewTransaksiController(transaksiService)
-		userRepository      repository.UserRepository      = repository.NewUserRepository(db)
-		userService         services.UserService           = services.NewUserService(userRepository)
-		userController      controller.UserController      = controller.NewUserController(userService, transaksiService, jwtService)
-		eventRepository     repository.EventRepository     = repository.NewEventRepository(db)
-		eventService        services.EventService          = services.NewEventRepository(eventRepository)
-		eventController     controller.EventController     = controller.NewEventController(eventService, jwtService)
+		db                   *gorm.DB                        = config.SetUpDatabaseConnection()
+		jwtService           services.JWTService             = services.NewJWTService()
+		pembayaranRepository repository.PembayaranRepository = repository.NewPembayaranRepository(db)
+		pembayaranService    services.PembayaranService      = services.NewPembayaranService(pembayaranRepository)
+		transaksiRepository  repository.TransaksiRepository  = repository.NewTransaksiRepository(db)
+		transaksiService     services.TransaksiService       = services.NewTransaksiService(transaksiRepository)
+		transaksiController  controller.TransaksiController  = controller.NewTransaksiController(transaksiService, jwtService)
+		eventRepository      repository.EventRepository      = repository.NewEventRepository(db)
+		eventService         services.EventService           = services.NewEventRepository(eventRepository)
+		eventController      controller.EventController      = controller.NewEventController(eventService, transaksiService, jwtService)
+		userRepository       repository.UserRepository       = repository.NewUserRepository(db)
+		userService          services.UserService            = services.NewUserService(userRepository)
+		userController       controller.UserController       = controller.NewUserController(userService, transaksiService, pembayaranService, eventService, jwtService)
 	)
 
 	server := gin.Default()
-	server.Use(middleware.CORSMiddleware())
 	routes.Router(server, userController, eventController, transaksiController, jwtService)
+	server.Use(middleware.CORSMiddleware())
 
 	if err := config.Seeder(db); err != nil {
 		log.Fatalf("error seeding database: %v", err)
