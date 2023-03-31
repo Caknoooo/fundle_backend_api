@@ -9,7 +9,7 @@ import (
 type Transaksi struct {
 	ID                  uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	Jumlah_Donasi_Event float64   `gorm:"type:float" json:"jumlah_donasi"`
-	Tanggal_Transaksi   time.Time `gorm:"datetime" json:"tangal_transaksi"`
+	Tanggal_Transaksi   time.Time `gorm:"timestamp with time zone" json:"tangal_transaksi"`
 
 	// HistoryTransaksiUser HistoryTransaksiUser `gorm:"foreignKey:TransaksiID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"history_transaksi_users,omitempty"`
 	UserID       uuid.UUID  `gorm:"type:uuid" json:"user_id"`

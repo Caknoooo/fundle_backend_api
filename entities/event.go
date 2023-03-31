@@ -18,7 +18,7 @@ type Event struct {
 	MaxDonasi      float64   `gorm:"type:float" json:"max_donasi"`
 	JumlahDonasi   float64   `gorm:"type:float" json:"jumlah_donasi"`
 	LikeCount      uint64    `json:"like_count"`
-	ExpiredDonasi  time.Time `gorm:"datetime" json:"expired_donasi"`
+	ExpiredDonasi  time.Time `gorm:"timestamp with time zone" json:"expired_donasi"`
 	IsDone         uint64    `json:"is_done"`
 	Is_target_full bool      `gorm:"type:boolean" json:"is_target_full"`
 	Is_expired     bool      `gorm:"type:boolean" json:"is_expired"`
@@ -44,7 +44,3 @@ type Event struct {
 	HistoryPenarikan []HistoryPenarikan `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"history_penarikan"`
 	Transaksi        []Transaksi        `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"transaksi,omitempty"`
 }
-	// PembuatDonasiID  uuid.UUID          `gorm:"type:uuid" json:"pembuat_donasi_id"`
-	// PembuatDonasi    PembuatDonasi      `gorm:"foreignKey:PembuatDonasiID" json:"pembuat_donasi"`
-	// PenerimaDonasiID uuid.UUID          `gorm:"type:uuid" json:"penerima_donasi_id"`
-	// PenerimaDonasi   PenerimaDonasi     `gorm:"foreignKey:PenerimaDonasiID" json:"penerima_donasi"`

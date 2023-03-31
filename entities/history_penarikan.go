@@ -9,7 +9,7 @@ import (
 type HistoryPenarikan struct {
 	ID                uint      `gorm:"primaryKey;autoIncrement" json:"id"`
 	Jumlah_Penarikan  float64   `gorm:"type:float" json:"jumlah_penarikan"`
-	Tanggal_Penarikan time.Time `gorm:"datetime" json:"tangal_penarikan"`
+	Tanggal_Penarikan time.Time `gorm:"timestamp with time zone" json:"tangal_penarikan"`
 
 	BankID  uint      `gorm:"type:uint" json:"bank_id"`
 	Bank    ListBank  `gorm:"foreignKey:BankID" json:"bank"`

@@ -252,14 +252,15 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 		return
 	}
 
-	// Cek apakah waktu donasi event telah habis atau belum
-	if event.ExpiredDonasi.Before(time.Now()) {
-		event.Is_expired = true
-	}
-
 	// Jika waktu donasi event telah habis, kirim response error
 	if event.Is_expired {
-		res := utils.BuildResponseFailed("Waktu telah habis", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Waktu Telah Habis", "Failed", utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	if event.Is_target_full {
+		res := utils.BuildResponseFailed("Jumlah Donasi Telah Penuh", "Failed", utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -268,13 +269,19 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 	newJumlahDonasi := event.JumlahDonasi + resultTransaksi.Jumlah_Donasi_Event
 	if newJumlahDonasi >= event.MaxDonasi {
 		newJumlahDonasi = event.MaxDonasi
-		event.Is_target_full = true
+		eventDTO := dto.EventUpdateDTO{
+			JumlahDonasi: &newJumlahDonasi,
+		}
 
-	}
+		err = uc.eventService.PatchEvent(ctx.Request.Context(), eventDTO, eventID)
+		if err != nil {
+			res := utils.BuildResponseFailed("Gagal Mengupdate Jumlah Donasi Event", err.Error(), utils.EmptyObj{})
+			ctx.JSON(http.StatusBadRequest, res)
+			return
+		}
 
-	if event.Is_target_full {
-		res := utils.BuildResponseFailed("Jumlah Donasi Telah Penuh", "Failed", utils.EmptyObj{})
-		ctx.JSON(http.StatusBadRequest, res)
+		res := utils.BuildResponseSuccess("Donasi Mencapai Batas Maksimum", event.MaxDonasi)
+		ctx.JSON(http.StatusOK, res)
 		return
 	}
 
@@ -284,7 +291,7 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 
 	err = uc.eventService.PatchEvent(ctx.Request.Context(), eventDTO, eventID)
 	if err != nil {
-		res := utils.BuildResponseFailed("Gagal Mengupdate Jumlah Donasi Event", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Mengupdate Jumlah Donasi Event", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}

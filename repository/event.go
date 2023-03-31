@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
+	"time"
+	"fmt"
 
 	"github.com/Caknoooo/golang-clean_template/entities"
 	"github.com/google/uuid"
@@ -111,6 +113,21 @@ func (er *eventRepository) PatchEvent(ctx context.Context, event entities.Event,
 	var updatedEvent entities.Event
 	if err := er.connection.First(&updatedEvent, eventID).Error; err != nil {
 		return err
+	}
+
+	fmt.Printf("%+v\n", updatedEvent)
+
+	// Cek apakah event telah kadaluwarsa
+	if !updatedEvent.ExpiredDonasi.IsZero() && updatedEvent.ExpiredDonasi.Before(time.Now()) {
+		updatedEvent.Is_expired = true
+		if err := er.connection.Save(&updatedEvent).Error; err != nil {
+			return err
+		}
+		return errors.New("Event Has Expired")
+	}
+
+	if updatedEvent.JumlahDonasi >= updatedEvent.MaxDonasi{
+		updatedEvent.Is_target_full = true
 	}
 
 	// Tambahkan IsDone dan update lagi
