@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -196,21 +195,16 @@ func (uc *userController) DeleteUser(ctx *gin.Context) {
 }
 
 func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
+	// Mendapatkan user ID dari token yang di-passing melalui context
 	token := ctx.MustGet("token").(string)
-	user_id, err := uc.jwtService.GetUserIDByToken(token)
+	userID, err := uc.jwtService.GetUserIDByToken(token)
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Memproses Request", "Token Tidak Valid", nil)
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
 		return
 	}
 
-	// var transaksi dto.TransaksiCreateDTO
-	// if err := ctx.ShouldBind(&transaksi); err != nil {
-	// 	res := utils.BuildResponseFailed("Gagal Request Dari Body", "Failed", utils.EmptyObj{})
-	// 	ctx.JSON(http.StatusBadRequest, res)
-	// 	return
-	// }
-
+	// Mendapatkan data pembayaran dari request body
 	var pembayaran dto.PembayaranDTO
 	if err := ctx.ShouldBind(&pembayaran); err != nil {
 		res := utils.BuildResponseFailed("Gagal Request Dari Body", "Failed", utils.EmptyObj{})
@@ -218,59 +212,84 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 		return
 	}
 
-	result, err := uc.pembayaranService.CreatePembayaran(ctx.Request.Context(), pembayaran)
+	// Membuat pembayaran baru dan mendapatkan ID pembayaran
+	resultPembayaran, err := uc.pembayaranService.CreatePembayaran(ctx.Request.Context(), pembayaran)
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Menambahkan Pembayaran", "Failed", utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	id := ctx.Param("event_id")
-	uuid, err := uuid.Parse(id)
+	// Mendapatkan ID event dari path parameter
+	eventID, err := uuid.Parse(ctx.Param("event_id"))
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Parse Id", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
+	// Membuat transaksi baru dan mendapatkan ID transaksi
 	transaksi := dto.TransaksiCreateDTO{
-		Jumlah_Donasi_Event: result.Jumlah,
+		Jumlah_Donasi_Event: resultPembayaran.Jumlah,
 		Tanggal_Transaksi:   time.Now(),
-		EventID:             uuid,
-		PembayaranID:        result.ID,
-		UserID:              user_id,
+		EventID:             eventID,
+		PembayaranID:        resultPembayaran.ID,
+		UserID:              userID,
 	}
 
-	result1, err := uc.transaksiService.CreateTransaksi(ctx.Request.Context(), transaksi)
+	resultTransaksi, err := uc.transaksiService.CreateTransaksi(ctx.Request.Context(), transaksi)
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Menambahkan Transaksi", "Failed", utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	event, err := uc.eventService.GetEventByID(ctx.Request.Context(), uuid)
+	// Mendapatkan data event berdasarkan ID event
+	event, err := uc.eventService.GetEventByID(ctx.Request.Context(), eventID)
 	if err != nil {
-		res := utils.BuildResponseFailed("Gagal Menambahkan Event", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Mendapatkan Event", "Failed", utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	var TempJumlahDonasi float64 = event.JumlahDonasi + result1.Jumlah_Donasi_Event
-
-	eventDTO := dto.EventUpdateDTO{
-		JumlahDonasi: &TempJumlahDonasi,
+	// Cek apakah waktu donasi event telah habis atau belum
+	if event.ExpiredDonasi.Before(time.Now()) {
+		event.Is_expired = true
 	}
 
-	fmt.Println(eventDTO)
+	// Jika waktu donasi event telah habis, kirim response error
+	if event.Is_expired {
+		res := utils.BuildResponseFailed("Waktu telah habis", "Failed", utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
 
-	uc.eventService.PatchEvent(ctx.Request.Context(), eventDTO, uuid)
+	// Menghitung jumlah donasi baru yang akan ditambahkan ke event
+	newJumlahDonasi := event.JumlahDonasi + resultTransaksi.Jumlah_Donasi_Event
+	if newJumlahDonasi >= event.MaxDonasi {
+		newJumlahDonasi = event.MaxDonasi
+		event.Is_target_full = true
+
+	}
+
+	if event.Is_target_full {
+		res := utils.BuildResponseFailed("Jumlah Donasi Telah Penuh", "Failed", utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	eventDTO := dto.EventUpdateDTO{
+		JumlahDonasi: &newJumlahDonasi,
+	}
+
+	err = uc.eventService.PatchEvent(ctx.Request.Context(), eventDTO, eventID)
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Mengupdate Jumlah Donasi Event", "Failed", utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res1 := utils.BuildResponseSuccess("Berhasil Menambahkan Transaksi", result1)
+	res1 := utils.BuildResponseSuccess("Berhasil Menambahkan Transaksi", resultTransaksi)
 	ctx.JSON(http.StatusOK, res1)
 }
 

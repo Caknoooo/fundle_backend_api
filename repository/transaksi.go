@@ -27,7 +27,12 @@ func NewTransaksiRepository(db *gorm.DB) TransaksiRepository {
 }
 
 func (tr *transaksiRepository) CreateTransaksi(ctx context.Context, transaksi entities.Transaksi) (entities.Transaksi, error) {
+
 	if err := tr.connection.Create(&transaksi).Error; err != nil {
+		return entities.Transaksi{}, err
+	}
+
+	if err:= tr.connection.Preload("Pembayaran").Preload("Event").Preload("User").First(&transaksi).Error;err != nil {
 		return entities.Transaksi{}, err
 	}
 	return transaksi, nil
@@ -35,7 +40,7 @@ func (tr *transaksiRepository) CreateTransaksi(ctx context.Context, transaksi en
 
 func (tr *transaksiRepository) GetAllTransaksi(ctx context.Context) ([]entities.Transaksi, error) {
 	var transaksi []entities.Transaksi
-	if err := tr.connection.Find(&transaksi).Error; err != nil {
+	if err := tr.connection.Preload("Pembayaran").Preload("Event").Preload("User").Find(&transaksi).Error; err != nil {
 		return nil, err
 	}
 	return transaksi, nil
@@ -43,7 +48,7 @@ func (tr *transaksiRepository) GetAllTransaksi(ctx context.Context) ([]entities.
 
 func (tr *transaksiRepository) GetTransaksiByID(ctx context.Context, transaksiID uuid.UUID) (entities.Transaksi, error) {
 	var transaksi entities.Transaksi
-	if err := tr.connection.Where("id = ?", transaksiID).Find(&transaksi).Error; err != nil {
+	if err := tr.connection.Preload("Pembayaran").Preload("Event").Preload("User").Where("id = ?", transaksiID).Find(&transaksi).Error; err != nil {
 		return entities.Transaksi{}, err
 	}
 	return transaksi, nil
@@ -57,9 +62,24 @@ func (tr *transaksiRepository) GetAllTransaksiByUserID(ctx context.Context, user
 	return transaksi, nil
 }
 
+// func (tr *transaksiRepository) GetAllEventLastTransaksi(ctx context.Context, eventID uuid.UUID) ([]entities.Transaksi, error) {
+// 	var transaksi []entities.Transaksi
+// 	if err := tr.connection.Where("event_id = ?", eventID).Order("Tanggal_Transaksi desc").Limit(3).Find(&transaksi).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return transaksi, nil
+// }
+
 func (tr *transaksiRepository) GetAllEventLastTransaksi(ctx context.Context, eventID uuid.UUID) ([]entities.Transaksi, error) {
 	var transaksi []entities.Transaksi
-	if err := tr.connection.Where("event_id = ?", eventID).Order("Tanggal_Transaksi desc").Limit(3).Find(&transaksi).Error; err != nil {
+	if err := tr.connection.
+		Joins("JOIN users ON transaksis.user_id = users.id").
+		Where("transaksis.event_id = ?", eventID).
+		Order("transaksis.Tanggal_Transaksi desc").
+		Limit(3).
+		Select("transaksis.*, users.nama as Nama_User").Preload("Pembayaran").Preload("Event").Preload("User").
+		Find(&transaksi).
+		Error; err != nil {
 		return nil, err
 	}
 	return transaksi, nil

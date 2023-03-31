@@ -40,7 +40,7 @@ func (tc *transaksiController) CreateTransaksi(ctx *gin.Context) {
 	transaksi, err := tc.transaksiService.CreateTransaksi(ctx.Request.Context(), transaksiDTO)
 
 	if err != nil {
-		res := utils.BuildResponseFailed("Gagal Menambahkan User", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Menambahkan Transaksi", "Failed", utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}

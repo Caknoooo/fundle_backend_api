@@ -25,7 +25,7 @@ type eventService struct {
 	eventRepository repository.EventRepository
 }
 
-func NewEventRepository(er repository.EventRepository) EventService {
+func NewEventService(er repository.EventRepository) EventService {
 	return &eventService{
 		eventRepository: er,
 	}

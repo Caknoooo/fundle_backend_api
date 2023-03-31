@@ -6,8 +6,10 @@ import (
 	"github.com/Caknoooo/golang-clean_template/dto"
 	"github.com/Caknoooo/golang-clean_template/services"
 	"github.com/Caknoooo/golang-clean_template/utils"
+	"github.com/Caknoooo/golang-clean_template/entities"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type EventController interface {
@@ -25,13 +27,15 @@ type eventController struct {
 	jwtService       services.JWTService
 	eventService     services.EventService
 	transaksiService services.TransaksiService
+	db *gorm.DB
 }
 
-func NewEventController(es services.EventService, ts services.TransaksiService, jwt services.JWTService) EventController {
+func NewEventController(es services.EventService, ts services.TransaksiService, jwt services.JWTService, db *gorm.DB) EventController {
 	return &eventController{
 		jwtService:       jwt,
 		eventService:     es,
 		transaksiService: ts,
+		db: db,
 	}
 }
 
@@ -43,6 +47,16 @@ func (ec *eventController) CreateEvent(ctx *gin.Context) {
 		return
 	}
 
+	// Check if the category event exists
+	var category entities.CategoryEvent
+	if err := ec.db.Where("nama = ?", eventDTO.JenisEvent).First(&category).Error; err != nil {
+		res := utils.BuildResponseFailed("Kategori event tidak ditemukan", err.Error(), utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	// Create the event
+	eventDTO.JenisEvent = category.Nama
 	event, err := ec.eventService.CreateEvent(ctx, eventDTO)
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Menambahkan Event", err.Error(), utils.EmptyObj{})

@@ -31,9 +31,11 @@ func NewEventRepository(db *gorm.DB) EventRepository {
 }
 
 func (er *eventRepository) CreateEvent(ctx context.Context, event entities.Event) (entities.Event, error) {
-	if err := er.connection.Preload("User").Create(&event).Error; err != nil {
+	if err := er.connection.Create(&event).Error; err != nil {
 		return entities.Event{}, nil
 	}
+
+	// if err := er.connection.Preload("Event")
 	return event, nil
 }
 
@@ -104,6 +106,19 @@ func (er *eventRepository) PatchEvent(ctx context.Context, event entities.Event,
 	if err := er.connection.Where("id = ?", eventID).Updates(&event).Error; err != nil {
 		return err
 	}
+
+	// Ambil event yang telah diperbarui dari database
+	var updatedEvent entities.Event
+	if err := er.connection.First(&updatedEvent, eventID).Error; err != nil {
+		return err
+	}
+
+	// Tambahkan IsDone dan update lagi
+	updatedEvent.IsDone++
+	if err := er.connection.Save(&updatedEvent).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 
