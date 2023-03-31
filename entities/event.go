@@ -19,7 +19,7 @@ type Event struct {
 	JumlahDonasi   float64   `gorm:"type:float" json:"jumlah_donasi"`
 	LikeCount      uint64    `json:"like_count"`
 	ExpiredDonasi  time.Time `gorm:"timestamp with time zone" json:"expired_donasi"`
-	IsDone         uint64    `json:"is_done"`
+	TotalBerhasil  uint64    `json:"total_berhasil"`
 	Is_target_full bool      `gorm:"type:boolean" json:"is_target_full"`
 	Is_expired     bool      `gorm:"type:boolean" json:"is_expired"`
 
@@ -32,15 +32,15 @@ type Event struct {
 	AsalInstansi        string `gorm:"type:varchar(100)" json:"asal_pekerjaan"`
 
 	// Penerima Event
-	NamaDepanPenerima    string    `gorm:"type:varchar(100)" json:"nama_depan_penerima"`
-	NamaBelakangPenerima string    `gorm:"type:varchar(100)" json:"nama_belakang_penerima"`
-	TujuanGalangDana     string    `gorm:"type:varchar(100)" json:"tujuan_galang_dana"`
-	LokasiTujuan         string    `gorm:"type:varchar(100)" json:"lokasi_tujuan"`
+	NamaDepanPenerima    string `gorm:"type:varchar(100)" json:"nama_depan_penerima"`
+	NamaBelakangPenerima string `gorm:"type:varchar(100)" json:"nama_belakang_penerima"`
+	TujuanGalangDana     string `gorm:"type:varchar(100)" json:"tujuan_galang_dana"`
+	LokasiTujuan         string `gorm:"type:varchar(100)" json:"lokasi_tujuan"`
 
-	UserID           uuid.UUID          `gorm:"type:uuid" json:"user_id"`
-	User             User               `gorm:"foreignKey:UserID" json:"-"`
+	UserID uuid.UUID `gorm:"type:uuid" json:"user_id"`
+	User   User      `gorm:"foreignKey:UserID" json:"-"`
 
 	Likes            []Like             `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	HistoryPenarikan []HistoryPenarikan `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"history_penarikan"`
-	Transaksi        []Transaksi        `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"transaksi,omitempty"`
+	HistoryPenarikan []HistoryPenarikan `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"history_penarikans,omitempty"`
+	Transaksi        []Transaksi        `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"transaksis,omitempty"`
 }

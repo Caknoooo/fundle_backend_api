@@ -50,7 +50,7 @@ func (ec *eventController) CreateEvent(ctx *gin.Context) {
 	// Check if the category event exists
 	var category entities.CategoryEvent
 	if err := ec.db.Where("nama = ?", eventDTO.JenisEvent).First(&category).Error; err != nil {
-		res := utils.BuildResponseFailed("Kategori event tidak ditemukan", err.Error(), utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Kategori Event Tidak Ditemukan", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -165,7 +165,7 @@ func (ec *eventController) UpdateEvent(ctx *gin.Context) {
 	}
 
 	eventDTO.ID = uuid
-	if err := ec.eventService.UpdateEvent(ctx, eventDTO); err != nil {
+	if err := ec.eventService.UpdateEvent(ctx, eventDTO, uuid); err != nil {
 		res := utils.BuildResponseFailed("Gagal Mengupdate Event", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return

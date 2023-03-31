@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Router(route *gin.Engine, UserController controller.UserController, EventController controller.EventController, TransaksiController controller.TransaksiController, SeederController controller.SeederController, jwtService services.JWTService) {
+func Router(route *gin.Engine, UserController controller.UserController, EventController controller.EventController, TransaksiController controller.TransaksiController, SeederController controller.SeederController, PenarikanController controller.PenarikanController, jwtService services.JWTService) {
 	routes := route.Group("/api/user")
 	{
 		routes.POST("", UserController.RegisterUser)
@@ -39,7 +39,7 @@ func Router(route *gin.Engine, UserController controller.UserController, EventCo
 		transaksiRoutes.GET("/get/:id", TransaksiController.GetTransaksiByID)
 	}
 
-	seederRoutes := route.Group("api/seeder")
+	seederRoutes := route.Group("/api/seeder")
 	{
 		seederRoutes.GET("/category", SeederController.GetAllCategory)
 		seederRoutes.GET("/bank", SeederController.GetAllBank)
@@ -47,5 +47,11 @@ func Router(route *gin.Engine, UserController controller.UserController, EventCo
 		seederRoutes.GET("/category/:id", SeederController.GetCategoryByID)
 		seederRoutes.GET("/bank/:id", SeederController.GetBankByID)
 		seederRoutes.GET("/status_pembayaran/:id", SeederController.GetStatusPembayaranByID)
+	}
+
+	penarikanRoutes := route.Group("/api/penarikan")
+	{
+		penarikanRoutes.POST("", middleware.Authenticate(jwtService), PenarikanController.CreatePenarikan)
+		penarikanRoutes.GET("", middleware.Authenticate(jwtService), PenarikanController.GetPenarikanByUser)
 	}
 }

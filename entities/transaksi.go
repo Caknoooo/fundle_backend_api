@@ -8,6 +8,7 @@ import (
 
 type Transaksi struct {
 	ID                  uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
+	NamaBank            string    `gorm:"type:varchar(100)" json:"nama_bank"`
 	Jumlah_Donasi_Event float64   `gorm:"type:float" json:"jumlah_donasi"`
 	Tanggal_Transaksi   time.Time `gorm:"timestamp with time zone" json:"tangal_transaksi"`
 

@@ -29,14 +29,17 @@ func main() {
 		eventController      controller.EventController      = controller.NewEventController(eventService, transaksiService, jwtService, db)
 		userRepository       repository.UserRepository       = repository.NewUserRepository(db)
 		userService          services.UserService            = services.NewUserService(userRepository)
-		userController       controller.UserController       = controller.NewUserController(userService, transaksiService, pembayaranService, eventService, jwtService)
+		userController       controller.UserController       = controller.NewUserController(userService, transaksiService, pembayaranService, eventService, db, jwtService)
 		seederRepository     repository.SeederRepository     = repository.NewSeederRepository(db)
 		seederService        services.SeederService          = services.NewSeederService(seederRepository)
 		seederController     controller.SeederController     = controller.NewSeederController(seederService)
+		penarikanRepository  repository.PenarikanRepository  = repository.NewPenarikanRepository(db)
+		penarikanService services.PenarikanService = services.NewPenarikanService(penarikanRepository)
+		penarikanController controller.PenarikanController = controller.NewPenarikanController(userService, eventService, penarikanService, db, jwtService)
 	)
 
 	server := gin.Default()
-	routes.Router(server, userController, eventController, transaksiController, seederController, jwtService)
+	routes.Router(server, userController, eventController, transaksiController, seederController, penarikanController, jwtService)
 	server.Use(middleware.CORSMiddleware())
 
 	if err := config.Seeder(db); err != nil {

@@ -17,7 +17,7 @@ type EventRepository interface {
 	GetAllEventByUserID(ctx context.Context, userID uuid.UUID) ([]entities.Event, error)
 	GetEventByID(ctx context.Context, eventID uuid.UUID) (entities.Event, error)
 	LikeEventByEventID(ctx context.Context, userID uuid.UUID, eventID uuid.UUID) error
-	UpdateEvent(ctx context.Context, event entities.Event) error
+	UpdateEvent(ctx context.Context, event entities.Event, eventID uuid.UUID) error
 	PatchEvent(ctx context.Context, event entities.Event, eventID uuid.UUID) error
 	DeleteEvent(ctx context.Context, eventID uuid.UUID) error
 }
@@ -92,15 +92,16 @@ func (er *eventRepository) LikeEventByEventID(ctx context.Context, userID uuid.U
 	}
 
 	event.LikeCount++
-	er.UpdateEvent(ctx, event)
+	er.UpdateEvent(ctx, event, like.EventID)
 
 	return nil
 }
 
-func (er *eventRepository) UpdateEvent(ctx context.Context, event entities.Event) error {
-	if err := er.connection.Updates(&event).Error; err != nil {
+func (er *eventRepository) UpdateEvent(ctx context.Context, event entities.Event, eventID uuid.UUID) error {
+	if err := er.connection.Where("id = ?", eventID).Updates(&event).Error; err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -131,7 +132,7 @@ func (er *eventRepository) PatchEvent(ctx context.Context, event entities.Event,
 	}
 
 	// Tambahkan IsDone dan update lagi
-	updatedEvent.IsDone++
+	updatedEvent.TotalBerhasil++
 	if err := er.connection.Save(&updatedEvent).Error; err != nil {
 		return err
 	}

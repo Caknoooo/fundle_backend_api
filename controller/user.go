@@ -10,6 +10,7 @@ import (
 	"github.com/Caknoooo/golang-clean_template/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type UserController interface {
@@ -30,22 +31,24 @@ type userController struct {
 	transaksiService  services.TransaksiService
 	pembayaranService services.PembayaranService
 	eventService      services.EventService
+	db                *gorm.DB
 }
 
-func NewUserController(us services.UserService, ts services.TransaksiService, ps services.PembayaranService, es services.EventService, jwt services.JWTService) UserController {
+func NewUserController(us services.UserService, ts services.TransaksiService, ps services.PembayaranService, es services.EventService, db *gorm.DB, jwt services.JWTService) UserController {
 	return &userController{
 		jwtService:        jwt,
 		userService:       us,
 		transaksiService:  ts,
 		pembayaranService: ps,
 		eventService:      es,
+		db:                db,
 	}
 }
 
 func (uc *userController) RegisterUser(ctx *gin.Context) {
 	var user dto.UserCreateDTO
 	if err := ctx.ShouldBind(&user); err != nil {
-		res := utils.BuildResponseFailed("Gagal Mendapatkan Request Dari Body", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Mendapatkan Request Dari Body", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -57,7 +60,7 @@ func (uc *userController) RegisterUser(ctx *gin.Context) {
 	}
 	result, err := uc.userService.RegisterUser(ctx.Request.Context(), user)
 	if err != nil {
-		res := utils.BuildResponseFailed("Gagal Menambahkan User", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Menambahkan User", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -207,7 +210,14 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 	// Mendapatkan data pembayaran dari request body
 	var pembayaran dto.PembayaranDTO
 	if err := ctx.ShouldBind(&pembayaran); err != nil {
-		res := utils.BuildResponseFailed("Gagal Request Dari Body", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Request Dari Body", err.Error(), utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	var listBank entities.ListBank
+	if err := uc.db.Where("id = ?", pembayaran.ListBankID).First(&listBank).Error; err != nil {
+		res := utils.BuildResponseFailed("ID Bank Tidak Ditemukan", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -215,7 +225,7 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 	// Membuat pembayaran baru dan mendapatkan ID pembayaran
 	resultPembayaran, err := uc.pembayaranService.CreatePembayaran(ctx.Request.Context(), pembayaran)
 	if err != nil {
-		res := utils.BuildResponseFailed("Gagal Menambahkan Pembayaran", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Menambahkan Pembayaran", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -230,6 +240,7 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 
 	// Membuat transaksi baru dan mendapatkan ID transaksi
 	transaksi := dto.TransaksiCreateDTO{
+		NamaBank:            listBank.Nama,
 		Jumlah_Donasi_Event: resultPembayaran.Jumlah,
 		Tanggal_Transaksi:   time.Now(),
 		EventID:             eventID,
@@ -239,7 +250,7 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 
 	resultTransaksi, err := uc.transaksiService.CreateTransaksi(ctx.Request.Context(), transaksi)
 	if err != nil {
-		res := utils.BuildResponseFailed("Gagal Menambahkan Transaksi", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Menambahkan Transaksi", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -247,20 +258,20 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 	// Mendapatkan data event berdasarkan ID event
 	event, err := uc.eventService.GetEventByID(ctx.Request.Context(), eventID)
 	if err != nil {
-		res := utils.BuildResponseFailed("Gagal Mendapatkan Event", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Gagal Mendapatkan Event", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
 	// Jika waktu donasi event telah habis, kirim response error
 	if event.Is_expired {
-		res := utils.BuildResponseFailed("Waktu Telah Habis", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Event Has Expired", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
 	if event.Is_target_full {
-		res := utils.BuildResponseFailed("Jumlah Donasi Telah Penuh", "Failed", utils.EmptyObj{})
+		res := utils.BuildResponseFailed("Jumlah Donasi Telah Penuh", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}

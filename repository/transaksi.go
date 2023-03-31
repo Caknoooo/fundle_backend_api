@@ -62,14 +62,6 @@ func (tr *transaksiRepository) GetAllTransaksiByUserID(ctx context.Context, user
 	return transaksi, nil
 }
 
-// func (tr *transaksiRepository) GetAllEventLastTransaksi(ctx context.Context, eventID uuid.UUID) ([]entities.Transaksi, error) {
-// 	var transaksi []entities.Transaksi
-// 	if err := tr.connection.Where("event_id = ?", eventID).Order("Tanggal_Transaksi desc").Limit(3).Find(&transaksi).Error; err != nil {
-// 		return nil, err
-// 	}
-// 	return transaksi, nil
-// }
-
 func (tr *transaksiRepository) GetAllEventLastTransaksi(ctx context.Context, eventID uuid.UUID) ([]entities.Transaksi, error) {
 	var transaksi []entities.Transaksi
 	if err := tr.connection.

@@ -10,6 +10,6 @@ type Pembayaran struct {
 	BuktiPembayaran string    `gorm:"type:varchar(50)" json:"bukti_pembayaran"`
 
 	Transaksi          []Transaksi `gorm:"foreignKey:PembayaranID" json:"transaksi"`
-	StatusPembayaranID uint        `gorm:"type:uint" json:"status_pembayaran_id"`
+	// StatusPembayaranID uint        `gorm:"type:uint" json:"status_pembayaran_id"`
 	ListBankID         uint        `gorm:"type:uint" json:"list_bank_id"`
 }
