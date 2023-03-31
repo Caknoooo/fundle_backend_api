@@ -12,10 +12,10 @@ type Transaksi struct {
 	Tanggal_Transaksi   time.Time `gorm:"datetime" json:"tangal_transaksi"`
 
 	// HistoryTransaksiUser HistoryTransaksiUser `gorm:"foreignKey:TransaksiID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"history_transaksi_users,omitempty"`
-	EventID      uuid.UUID  `gorm:"type:uuid" json:"event_id"`
-	Event        Event      `gorm:"foreignKey:EventID" json:"event"`
-	PembayaranID uuid.UUID  `gorm:"type:uuid" json:"pembayaran_id"`
-	Pembayaran   Pembayaran `gorm:"foreignKey:PembayaranID" json:"transaksi"`
 	UserID       uuid.UUID  `gorm:"type:uuid" json:"user_id"`
-	User         User       `gorm:"foreignKey:UserID" json:"user"`
+	User         User       `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	EventID      uuid.UUID  `gorm:"type:uuid" json:"event_id"`
+	Event        Event      `gorm:"foreignKey:EventID" json:"-"`
+	PembayaranID uuid.UUID  `gorm:"type:uuid" json:"pembayaran_id"`
+	Pembayaran   Pembayaran `gorm:"foreignKey:PembayaranID" json:"-"`
 }

@@ -38,14 +38,12 @@ type Event struct {
 	LokasiTujuan         string    `gorm:"type:varchar(100)" json:"lokasi_tujuan"`
 
 	UserID           uuid.UUID          `gorm:"type:uuid" json:"user_id"`
-	User             User               `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	User             User               `gorm:"foreignKey:UserID" json:"-"`
 
-	Likes            []Like             `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"likes"`
+	Likes            []Like             `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	HistoryPenarikan []HistoryPenarikan `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"history_penarikan"`
 	Transaksi        []Transaksi        `gorm:"foreignKey:EventID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"transaksi,omitempty"`
 }
-
-
 	// PembuatDonasiID  uuid.UUID          `gorm:"type:uuid" json:"pembuat_donasi_id"`
 	// PembuatDonasi    PembuatDonasi      `gorm:"foreignKey:PembuatDonasiID" json:"pembuat_donasi"`
 	// PenerimaDonasiID uuid.UUID          `gorm:"type:uuid" json:"penerima_donasi_id"`
