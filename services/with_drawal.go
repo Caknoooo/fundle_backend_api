@@ -23,10 +23,10 @@ func NewPenarikanService(pr repository.PenarikanRepository) PenarikanService {
 	}
 }
 
-func(ps *penarikanService) CreatePenarikan(ctx context.Context, penarikan entities.HistoryPenarikan) (entities.HistoryPenarikan, error) {
+func (ps *penarikanService) CreatePenarikan(ctx context.Context, penarikan entities.HistoryPenarikan) (entities.HistoryPenarikan, error) {
 	return ps.penarikanRepository.CreatePenarikan(ctx, penarikan)
 }
- 
+
 func (ps *penarikanService) GetPenarikanByUser(ctx context.Context, userID uuid.UUID) ([]entities.HistoryPenarikan, error) {
 	return ps.penarikanRepository.GetPenarikanByUser(ctx, userID)
 }

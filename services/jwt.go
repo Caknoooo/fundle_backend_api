@@ -33,8 +33,8 @@ type jwtService struct {
 
 func NewJWTService() JWTService {
 	return &jwtService{
-		secretKey: getSecretKey(),
-		issuer:    "Template",
+		secretKey:  getSecretKey(),
+		issuer:     "Template",
 		invalidate: make(map[string]time.Time),
 	}
 }
