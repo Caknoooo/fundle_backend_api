@@ -19,7 +19,7 @@ type EventService interface {
 	UpdateEvent(ctx context.Context, eventDTO dto.EventUpdateDTO, eventID uuid.UUID) error
 	PatchEvent(ctx context.Context, eventDTO dto.EventUpdateDTO, eventID uuid.UUID) error
 	DeleteEvent(ctx context.Context, eventID uuid.UUID) error
-	Get3Event(ctx context.Context) ([]entities.Event, error)
+	Get3Event(ctx context.Context, q uint) ([]entities.Event, error)
 }
 
 type eventService struct {
@@ -77,6 +77,6 @@ func (es *eventService) DeleteEvent(ctx context.Context, eventID uuid.UUID) erro
 	return es.eventRepository.DeleteEvent(ctx, eventID)
 }
 
-func (es *eventService) Get3Event(ctx context.Context) ([]entities.Event, error) {
-	return es.eventRepository.Get3Event(ctx)
+func (es *eventService) Get3Event(ctx context.Context, q uint) ([]entities.Event, error) {
+	return es.eventRepository.Get3Event(ctx, q)
 }

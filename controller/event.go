@@ -29,6 +29,7 @@ type eventController struct {
 	eventService     services.EventService
 	transaksiService services.TransaksiService
 	db               *gorm.DB
+	page             uint
 }
 
 func NewEventController(es services.EventService, ts services.TransaksiService, jwt services.JWTService, db *gorm.DB) EventController {
@@ -37,6 +38,7 @@ func NewEventController(es services.EventService, ts services.TransaksiService, 
 		eventService:     es,
 		transaksiService: ts,
 		db:               db,
+		page:             1,
 	}
 }
 
@@ -215,13 +217,16 @@ func (ec *eventController) GetAllEventLastTransaksi(ctx *gin.Context) {
 }
 
 func (ec *eventController) Get3Event(ctx *gin.Context) {
-	events, err := ec.eventService.Get3Event(ctx)
+	limit := ec.page * 3
+
+	events, err := ec.eventService.Get3Event(ctx, limit)
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Mendapatkan List Event", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
+	ec.page++
 	res := utils.BuildResponseSuccess("Berhasil Mendapatkan List Event", events)
 	ctx.JSON(http.StatusOK, res)
 }

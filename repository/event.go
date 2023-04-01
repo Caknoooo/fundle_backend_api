@@ -20,7 +20,7 @@ type EventRepository interface {
 	UpdateEvent(ctx context.Context, event entities.Event, eventID uuid.UUID) error
 	PatchEvent(ctx context.Context, event entities.Event, eventID uuid.UUID) error
 	DeleteEvent(ctx context.Context, eventID uuid.UUID) error
-	Get3Event(ctx context.Context) ([]entities.Event, error)
+	Get3Event(ctx context.Context, q uint) ([]entities.Event, error)
 }
 
 type eventRepository struct {
@@ -148,9 +148,9 @@ func (er *eventRepository) DeleteEvent(ctx context.Context, eventID uuid.UUID) e
 	return nil
 }
 
-func (er *eventRepository) Get3Event(ctx context.Context) ([]entities.Event, error) {
+func (er *eventRepository) Get3Event(ctx context.Context, q uint) ([]entities.Event, error) {
 	var events []entities.Event
-	if err := er.connection.Preload("User").Preload("Likes").Limit(3).Find(&events).Error; err != nil {
+	if err := er.connection.Preload("User").Preload("Likes").Limit(int(q)).Find(&events).Error; err != nil {
 		return nil, err
 	}
 	return events, nil
