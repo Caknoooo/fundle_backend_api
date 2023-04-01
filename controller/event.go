@@ -21,7 +21,7 @@ type EventController interface {
 	UpdateEvent(ctx *gin.Context)
 	DeleteEvent(ctx *gin.Context)
 	GetAllEventLastTransaksi(ctx *gin.Context)
-	Get4Event(ctx *gin.Context)
+	Get3Event(ctx *gin.Context)
 }
 
 type eventController struct {
@@ -214,8 +214,8 @@ func (ec *eventController) GetAllEventLastTransaksi(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (ec *eventController) Get4Event(ctx *gin.Context) {
-	events, err := ec.eventService.Get4Event(ctx)
+func (ec *eventController) Get3Event(ctx *gin.Context) {
+	events, err := ec.eventService.Get3Event(ctx)
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Mendapatkan List Event", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
