@@ -12,7 +12,6 @@ type EventCreateDTO struct {
 	JudulEvent     string    `json:"judul_event" form:"judul_event" binding:"required"`
 	DeskripsiEvent string    `json:"deskripsi_event" form:"deskripsi_event" binding:"required"`
 	JenisEvent     string    `json:"jenis_event" form:"jenis_event" binding:"required"`
-	JumlahDonasi   float64   `json:"jumlah_donasi" form:"jumlah_donasi" binding:"required"`
 	MaxDonasi      float64   `json:"max_donasi" form:"max_donasi" binding:"required"`
 	FotoEvent      string    `json:"foto_event" form:"foto_event" binding:"required"`
 	ExpiredDonasi  time.Time `json:"expired_donasi" form:"expired_donasi" binding:"required"`
