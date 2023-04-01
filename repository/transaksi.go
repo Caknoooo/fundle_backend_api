@@ -32,7 +32,7 @@ func (tr *transaksiRepository) CreateTransaksi(ctx context.Context, transaksi en
 		return entities.Transaksi{}, err
 	}
 
-	if err:= tr.connection.Preload("Pembayaran").Preload("Event").Preload("User").First(&transaksi).Error;err != nil {
+	if err := tr.connection.Preload("Pembayaran").Preload("Event").Preload("User").First(&transaksi).Error; err != nil {
 		return entities.Transaksi{}, err
 	}
 	return transaksi, nil
@@ -56,7 +56,7 @@ func (tr *transaksiRepository) GetTransaksiByID(ctx context.Context, transaksiID
 
 func (tr *transaksiRepository) GetAllTransaksiByUserID(ctx context.Context, userID uuid.UUID) ([]entities.Transaksi, error) {
 	var transaksi []entities.Transaksi
-	if err := tr.connection.Preload("User").Where("user_id = ?", userID).Find(&transaksi).Error; err != nil {
+	if err := tr.connection.Where("user_id = ?", userID).Find(&transaksi).Error; err != nil {
 		return nil, err
 	}
 	return transaksi, nil

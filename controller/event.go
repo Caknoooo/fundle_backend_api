@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/Caknoooo/golang-clean_template/dto"
+	"github.com/Caknoooo/golang-clean_template/entities"
 	"github.com/Caknoooo/golang-clean_template/services"
 	"github.com/Caknoooo/golang-clean_template/utils"
-	"github.com/Caknoooo/golang-clean_template/entities"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -21,13 +21,14 @@ type EventController interface {
 	UpdateEvent(ctx *gin.Context)
 	DeleteEvent(ctx *gin.Context)
 	GetAllEventLastTransaksi(ctx *gin.Context)
+	Get4Event(ctx *gin.Context)
 }
 
 type eventController struct {
 	jwtService       services.JWTService
 	eventService     services.EventService
 	transaksiService services.TransaksiService
-	db *gorm.DB
+	db               *gorm.DB
 }
 
 func NewEventController(es services.EventService, ts services.TransaksiService, jwt services.JWTService, db *gorm.DB) EventController {
@@ -35,7 +36,7 @@ func NewEventController(es services.EventService, ts services.TransaksiService, 
 		jwtService:       jwt,
 		eventService:     es,
 		transaksiService: ts,
-		db: db,
+		db:               db,
 	}
 }
 
@@ -210,5 +211,17 @@ func (ec *eventController) GetAllEventLastTransaksi(ctx *gin.Context) {
 	}
 
 	res := utils.BuildResponseSuccess("Berhasil Mendapatkan List Transaksi", events)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (ec *eventController) Get4Event(ctx *gin.Context) {
+	events, err := ec.eventService.Get4Event(ctx)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Mendapatkan List Event", err.Error(), utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess("Berhasil Mendapatkan List Event", events)
 	ctx.JSON(http.StatusOK, res)
 }
