@@ -15,6 +15,7 @@ type EventCreateDTO struct {
 	MaxDonasi      float64   `json:"max_donasi" form:"max_donasi" binding:"required"`
 	FotoEvent      string    `json:"foto_event" form:"foto_event" binding:"required"`
 	ExpiredDonasi  time.Time `json:"expired_donasi" form:"expired_donasi" binding:"required"`
+	SisaHariDonasi *string       `json:"time_left" form:"time_left"`
 
 	NamaDepanPembuat    string `json:"nama_depan_pembuat" form:"nama_depan_pembuat" binding:"required"`
 	NamaBelakangPembuat string `json:"nama_belakang_pembuat" form:"nama_belakang_pembuat" binding:"required"`

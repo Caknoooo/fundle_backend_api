@@ -19,6 +19,7 @@ type Event struct {
 	JumlahDonasi   float64   `gorm:"type:float" json:"jumlah_donasi"`
 	LikeCount      uint64    `json:"like_count"`
 	ExpiredDonasi  time.Time `gorm:"timestamp with time zone" json:"expired_donasi"`
+	SisaHariDonasi string       `json:"time_left"`
 	IsDone         uint64    `json:"is_done"`
 	Is_target_full bool      `gorm:"type:boolean" json:"is_target_full"`
 	Is_expired     bool      `gorm:"type:boolean" json:"is_expired"`

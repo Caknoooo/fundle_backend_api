@@ -1,7 +1,10 @@
 package controller
 
 import (
+	"fmt"
+	"math"
 	"net/http"
+	"time"
 
 	"github.com/Caknoooo/golang-clean_template/dto"
 	"github.com/Caknoooo/golang-clean_template/entities"
@@ -58,6 +61,9 @@ func (ec *eventController) CreateEvent(ctx *gin.Context) {
 		return
 	}
 
+
+	timeLeft := TimeLeft(eventDTO.ExpiredDonasi)
+	eventDTO.SisaHariDonasi = &timeLeft
 	// Create the event
 	eventDTO.JenisEvent = category.Nama
 	event, err := ec.eventService.CreateEvent(ctx, eventDTO)
@@ -69,6 +75,22 @@ func (ec *eventController) CreateEvent(ctx *gin.Context) {
 
 	res := utils.BuildResponseSuccess("Berhasil Menambahkan Event", event)
 	ctx.JSON(http.StatusOK, res)
+}
+
+func TimeLeft(expiredTime time.Time) string {
+	timeLeft := expiredTime.Sub(time.Now())
+
+	fmt.Print(timeLeft.Hours() / 24)
+	if timeLeft.Hours() / 24 <= 0 {
+		return "Waktu Habis"
+	}
+
+	if timeLeft.Hours() / 24 < 1 {
+		return "<1"
+	}
+	
+	dayLeft := int(math.Round(timeLeft.Hours() / 24))
+	return fmt.Sprintf("%v", dayLeft)
 }
 
 func (ec *eventController) GetAllEvent(ctx *gin.Context) {
