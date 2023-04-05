@@ -273,8 +273,7 @@ func (ec *eventController) Get3Event(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
-
-	ec.page++
+	
 	res := utils.BuildResponseSuccess("Berhasil Mendapatkan List Event", events)
 	ctx.JSON(http.StatusOK, res)
 }

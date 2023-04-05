@@ -39,6 +39,7 @@ type EventUpdateDTO struct {
 	DeskripsiEvent *string   `json:"deskripsi_event" form:"deskripsi_event"`
 	JenisEvent     *string   `json:"jenis_event" form:"jenis_event"`
 	JumlahDonasi   *float64  `json:"jumlah_donasi" form:"jumlah_donasi"`
+	SisaDonasi *float64 `json:"sisa_donasi" form:"sisa_donasi"`
 	FotoEvent      *string   `json:"foto_event" form:"foto_event"`
 	UserID         *string   `json:"user_id" form:"user_id"`
 	IsTargetFull   *bool     `json:"is_target_full" form:"is_target_full"`

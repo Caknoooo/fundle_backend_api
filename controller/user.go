@@ -263,19 +263,14 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 		return
 	}
 
-	// Jika waktu donasi event telah habis, kirim response error
-	if event.Is_expired {
-		res := utils.BuildResponseFailed("Event Has Expired", err.Error(), utils.EmptyObj{})
-		ctx.JSON(http.StatusBadRequest, res)
-		return
-	}
-
 	if event.Is_target_full {
 		res := utils.BuildResponseFailed("Jumlah Donasi Telah Penuh", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
+	sisa_donasi := event.SisaDonasi + resultPembayaran.Jumlah
+	
 	// Menghitung jumlah donasi baru yang akan ditambahkan ke event
 	newJumlahDonasi := event.JumlahDonasi + resultTransaksi.Jumlah_Donasi_Event
 	if newJumlahDonasi >= event.MaxDonasi {
@@ -298,6 +293,7 @@ func (uc *userController) CreateTransaksiUser(ctx *gin.Context) {
 
 	eventDTO := dto.EventUpdateDTO{
 		JumlahDonasi: &newJumlahDonasi,
+		SisaDonasi: &sisa_donasi,
 	}
 
 	err = uc.eventService.PatchEvent(ctx.Request.Context(), eventDTO, eventID)

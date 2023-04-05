@@ -17,6 +17,6 @@ type HistoryPenarikan struct {
 	UserID  uuid.UUID `gorm:"type:uuid" json:"user_id"`
 	User    User      `gorm:"foreignKey:UserID" json:"-"`
 	EventID uuid.UUID `gorm:"type:uuid" json:"event_id"`
-	Event   Event     `gorm:"foreignKey:EventID" json:"-"`
+	Event   Event     `gorm:"foreignKey:EventID" json:"event"`
 }
 	

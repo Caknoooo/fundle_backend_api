@@ -90,23 +90,23 @@ func (pc *penarikanController) CreatePenarikan(ctx *gin.Context) {
 		return
 	}
 
-	newBalance := balance - penarikanDTO.Jumlah_Penarikan
-	if newBalance <= 0 {
-		event.JumlahDonasi = 0
-	} else{
-		event.JumlahDonasi = newBalance
-	}
+	// newBalance := balance - penarikanDTO.Jumlah_Penarikan
+	// if newBalance <= 0 {
+	// 	event.SisaDonasi = 0
+	// } else{
+	// 	event.SisaDonasi = newBalance
+	// }
 
-	eventDTO := dto.EventUpdateDTO {
-		JumlahDonasi: &event.JumlahDonasi,
-	}
+	// eventDTO := dto.EventUpdateDTO {
+	// 	JumlahDonasi: &event.JumlahDonasi,
+	// }
 
-	err = pc.eventService.UpdateEvent(ctx, eventDTO, penarikan.EventID)
-	if err != nil {
-		res := utils.BuildResponseFailed("Gagal Mengupdate Saldo Event", err.Error(), utils.EmptyObj{})
-		ctx.JSON(http.StatusBadRequest, res)
-		return
-	}
+	// err = pc.eventService.UpdateEvent(ctx, eventDTO, penarikan.EventID)
+	// if err != nil {
+	// 	res := utils.BuildResponseFailed("Gagal Mengupdate Saldo Event", err.Error(), utils.EmptyObj{})
+	// 	ctx.JSON(http.StatusBadRequest, res)
+	// 	return
+	// }
 
 	res := utils.BuildResponseSuccess("Penarikan Berhasil", result)
 	ctx.JSON(http.StatusOK, res)

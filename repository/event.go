@@ -35,6 +35,7 @@ func NewEventRepository(db *gorm.DB) EventRepository {
 }
 
 func (er *eventRepository) CreateEvent(ctx context.Context, event entities.Event) (entities.Event, error) {
+	event.SisaDonasi = event.JumlahDonasi
 	if err := er.connection.Create(&event).Error; err != nil {
 		return entities.Event{}, nil
 	}

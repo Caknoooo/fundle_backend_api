@@ -27,7 +27,6 @@ func NewTransaksiRepository(db *gorm.DB) TransaksiRepository {
 }
 
 func (tr *transaksiRepository) CreateTransaksi(ctx context.Context, transaksi entities.Transaksi) (entities.Transaksi, error) {
-
 	if err := tr.connection.Create(&transaksi).Error; err != nil {
 		return entities.Transaksi{}, err
 	}

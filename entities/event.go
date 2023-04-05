@@ -17,9 +17,10 @@ type Event struct {
 	FotoEvent      string    `gorm:"type:varchar(100)" json:"foto_event"`
 	MaxDonasi      float64   `gorm:"type:float" json:"max_donasi"`
 	JumlahDonasi   float64   `gorm:"type:float" json:"jumlah_donasi"`
+	SisaDonasi     float64   `gorm:"type:float" json:"sisa_donasi"`
 	LikeCount      uint64    `json:"like_count"`
 	ExpiredDonasi  time.Time `gorm:"timestamp with time zone" json:"expired_donasi"`
-	SisaHariDonasi string       `json:"time_left"`
+	SisaHariDonasi string    `json:"time_left"`
 	IsDone         uint64    `json:"is_done"`
 	Is_target_full bool      `gorm:"type:boolean" json:"is_target_full"`
 	Is_expired     bool      `gorm:"type:boolean" json:"is_expired"`
