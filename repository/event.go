@@ -22,6 +22,7 @@ type EventRepository interface {
 	PatchEvent(ctx context.Context, event entities.Event, eventID uuid.UUID) error
 	DeleteEvent(ctx context.Context, eventID uuid.UUID) error
 	Get3Event(ctx context.Context, q uint) ([]entities.Event, error)
+	GetEventForService(ctx context.Context) ([]entities.Event, error)
 }
 
 type eventRepository struct {
@@ -200,6 +201,14 @@ func (er *eventRepository) DeleteEvent(ctx context.Context, eventID uuid.UUID) e
 func (er *eventRepository) Get3Event(ctx context.Context, q uint) ([]entities.Event, error) {
 	var events []entities.Event
 	if err := er.connection.Preload("User").Preload("Likes").Limit(int(q)).Find(&events).Error; err != nil {
+		return nil, err
+	}
+	return events, nil
+}
+
+func (er *eventRepository) GetEventForService(ctx context.Context) ([]entities.Event, error) {
+	var events []entities.Event
+	if err := er.connection.Preload("User").Preload("Likes").Order("created_at desc").Limit(6).Find(&events).Error; err != nil {
 		return nil, err
 	}
 	return events, nil

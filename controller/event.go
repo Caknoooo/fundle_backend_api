@@ -26,6 +26,7 @@ type EventController interface {
 	GetAllEventLastTransaksi(ctx *gin.Context)
 	Post3Event(ctx *gin.Context)
 	Get3Event(ctx *gin.Context)
+	GetEventForService(ctx *gin.Context)
 }
 
 type eventController struct {
@@ -268,6 +269,18 @@ func (ec *eventController) Post3Event(ctx *gin.Context) {
 func (ec *eventController) Get3Event(ctx *gin.Context) {
 	fmt.Print(ec.page)
 	events, err := ec.eventService.Get3Event(ctx, ec.page * 3)
+	if err != nil {
+		res := utils.BuildResponseFailed("Gagal Mendapatkan List Event", err.Error(), utils.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+	
+	res := utils.BuildResponseSuccess("Berhasil Mendapatkan List Event", events)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (ec *eventController) GetEventForService(ctx *gin.Context) {
+	events, err := ec.eventService.GetEventForService(ctx)
 	if err != nil {
 		res := utils.BuildResponseFailed("Gagal Mendapatkan List Event", err.Error(), utils.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
